@@ -127,7 +127,7 @@ def get_adsu_announcements():
     news_section_url = domain + "category/news"
     news_section = get_webpage(news_section_url)
 
-    announcements = news_section('#main > div.container > div.row > div.col-lg-8.col-md-8.col-sm-12.col-xs-12 > div.col_in.__padd-right > div.posts_list.with_sidebar > ul.post_list_ul > li')
+    announcements = news_section('ul.post_list_ul > li')
 
     announcements_to_be_published = []
     announcements.reverse()  # order the list of announcements from the least recent to the most recent
