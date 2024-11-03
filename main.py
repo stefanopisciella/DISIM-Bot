@@ -62,6 +62,10 @@ def check_if_the_announcement_must_be_scraped(is_a_disim_announcement, announcem
             return False
         elif announcement_publication_date > json_content["last_scraped_announcement_publication_date"]:
             # the announcement to be checked is newer than the last scraped announcement
+
+            json_content["last_scraped_announcement_publication_date"] = announcement_publication_date
+            json_content["announcements_urls"] = [announcement_url]
+            write_db_file(json_filename, json_content)
             return True
         elif announcement_publication_date == json_content["last_scraped_announcement_publication_date"]:
             # retrive all the urls relative to all announcement published on the disim website on the day of announcement_publication_date
@@ -72,6 +76,9 @@ def check_if_the_announcement_must_be_scraped(is_a_disim_announcement, announcem
                 return False
             else:
                 # the announcement to be checked hasn't been scraped yet
+
+                json_content["announcements_urls"].append(announcement_url)
+                write_db_file(json_filename, json_content)
                 return True
 
 def write_db_file(json_filename, data):
@@ -87,6 +94,7 @@ def get_disim_announcements():
     announcements = homepage('#annunci > div.two-thirds.column > div.row')
 
     announcements_to_be_published = []
+    announcements.reverse()  # order the list of announcements from the least recent to the most recent
     for announcement in announcements:
         publication_date = pq(announcement).find("p.post_meta > span.calendar").text()
         reformatted_publication_date = reformat_date(publication_date)
@@ -122,6 +130,7 @@ def get_adsu_announcements():
     announcements = news_section('#main > div.container > div.row > div.col-lg-8.col-md-8.col-sm-12.col-xs-12 > div.col_in.__padd-right > div.posts_list.with_sidebar > ul.post_list_ul > li')
 
     announcements_to_be_published = []
+    announcements.reverse()  # order the list of announcements from the least recent to the most recent
     for announcement in announcements:
         publication_date = pq(announcement).find("div.stm_post_details > ul > li.post_date").text()
         reformatted_publication_date = reformat_date(publication_date)
@@ -151,15 +160,12 @@ def get_adsu_announcements():
 
     return announcements_to_be_published
 
-def publish_announcements_on_telegram(announcements):
-    # TODO implement the code for publishing messages on Telegram
-    pass
-
-
-
-if __name__ == '__main__':
+def main():
     announcements_to_be_published = get_disim_announcements()
     announcements_to_be_published.extend(get_adsu_announcements())
 
-    publish_announcements_on_telegram(announcements_to_be_published)
     debug_by_printing_prettified_json(announcements_to_be_published)
+
+
+if __name__ == '__main__':
+    main()
