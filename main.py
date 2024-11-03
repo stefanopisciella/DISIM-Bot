@@ -48,18 +48,7 @@ def get_announcement_tags(tags):
     return text_of_tags
 
 
-def print_prettified_json(website, title, link_to_detail_page, publication_date, reformatted_publication_date, announcement_tags,
-                          preview_of_the_announcement_content):
-    announcement = {
-        "website": website,
-        "title": title,
-        "link_to_detail_page": link_to_detail_page,
-        "publication_date": publication_date,
-        "reformatted_publication_date": reformatted_publication_date,
-        "announcement_tags": announcement_tags,
-        "preview_of_the_announcement_content": preview_of_the_announcement_content
-    }
-
+def debug_by_printing_prettified_json(announcement):
     print(json.dumps(announcement, indent=4))
 
 def check_if_the_announcement_must_be_scraped(is_a_disim_announcement, announcement_publication_date, announcement_url):
@@ -89,7 +78,7 @@ def write_db_file(json_filename, data):
     with open(json_filename, 'w', encoding='utf-8') as json_file:
         json.dump(data, json_file, indent=4)
 
-def scrape_disim_website():
+def get_disim_announcements():
     domain = "https://www.disim.univaq.it/"
 
     homepage_url = domain + "index"
@@ -97,26 +86,34 @@ def scrape_disim_website():
 
     announcements = homepage('#annunci > div.two-thirds.column > div.row')
 
+    announcements_to_be_published = []
     for announcement in announcements:
         publication_date = pq(announcement).find("p.post_meta > span.calendar").text()
         reformatted_publication_date = reformat_date(publication_date)
         link_to_detail_page = domain + reformat_url(pq(announcement).find("h5 > a").attr("href"))
 
         if not check_if_the_announcement_must_be_scraped(True, reformatted_publication_date, link_to_detail_page):
-            # in the website the announcements are sorted from the most recent to the least recent ==> if the first announcement must not be scraped, then also the others must not
-            break
+            # the current announcement has already been scraped ==> don't continue scraping the current announcement
+            continue
 
         title = pq(announcement).find("h5 > a").text()
         announcement_tags = get_announcement_tags(pq(announcement).find("p.post_meta > span.tags > a"))
         preview_of_the_announcement_content = pq(announcement).find("p:nth-child(2)").text()
 
-        # START debug the results
-        print_prettified_json("disim", title, link_to_detail_page, publication_date, reformatted_publication_date, announcement_tags, preview_of_the_announcement_content)
-        # print(f"website: disim, title: {title}, publication date: {publication_date}, reformatted publication date: {reformatted_publication_date}, tags: {announcement_tags}, content preview: {preview_of_the_announcement_content}, link to detail page: {link_to_detail_page}")
-        # END debug the results
+        announcement_to_be_published = {
+            "website": "disim",
+            "title": title,
+            "link_to_detail_page": link_to_detail_page,
+            "publication_date": publication_date,
+            "reformatted_publication_date": reformatted_publication_date,
+            "announcement_tags": announcement_tags,
+            "preview_of_the_announcement_content": preview_of_the_announcement_content
+        }
+        announcements_to_be_published.append(announcement_to_be_published)
 
+    return announcements_to_be_published
 
-def scrape_adsu_website():
+def get_adsu_announcements():
     domain = "https://www.adsuaq.org/"
 
     news_section_url = domain + "category/news"
@@ -124,14 +121,15 @@ def scrape_adsu_website():
 
     announcements = news_section('#main > div.container > div.row > div.col-lg-8.col-md-8.col-sm-12.col-xs-12 > div.col_in.__padd-right > div.posts_list.with_sidebar > ul.post_list_ul > li')
 
+    announcements_to_be_published = []
     for announcement in announcements:
         publication_date = pq(announcement).find("div.stm_post_details > ul > li.post_date").text()
         reformatted_publication_date = reformat_date(publication_date)
         link_to_detail_page = pq(announcement).find("h4 > a").attr("href")
 
         if not check_if_the_announcement_must_be_scraped(False, reformatted_publication_date, link_to_detail_page):
-            # in the website the announcements are sorted from the most recent to the least recent ==> if the first announcement must not be scraped, then also the others must not
-            break
+            # the current announcement has already been scraped ==> don't continue scraping the current announcement
+            continue
 
         title = pq(announcement).find("h4 > a").text()
 
@@ -140,15 +138,28 @@ def scrape_adsu_website():
 
         preview_of_the_announcement_content = pq(announcement).find("div.post_excerpt > p").text()
 
-        # START debug the results
-        print_prettified_json("adsu", title, link_to_detail_page, publication_date, reformatted_publication_date, announcement_tags, preview_of_the_announcement_content)
-        # print(f"website: adsu, title: {title}, publication date: {publication_date}, reformatted publication date: {reformatted_publication_date}, tags: {announcement_tags}, content preview: {preview_of_the_announcement_content}, link to detail page: {link_to_detail_page}")
-        # END debug the results
+        announcement_to_be_published = {
+            "website": "adsu",
+            "title": title,
+            "link_to_detail_page": link_to_detail_page,
+            "publication_date": publication_date,
+            "reformatted_publication_date": reformatted_publication_date,
+            "announcement_tags": announcement_tags,
+            "preview_of_the_announcement_content": preview_of_the_announcement_content
+        }
+        announcements_to_be_published.append(announcement_to_be_published)
+
+    return announcements_to_be_published
+
+def publish_announcements_on_telegram(announcements):
+    # TODO implement the code for publishing messages on Telegram
+    pass
 
 
 
 if __name__ == '__main__':
-    scrape_disim_website()
+    announcements_to_be_published = get_disim_announcements()
+    announcements_to_be_published.extend(get_adsu_announcements())
 
-    # CHECK
-    # scrape_adsu_website()
+    publish_announcements_on_telegram(announcements_to_be_published)
+    debug_by_printing_prettified_json(announcements_to_be_published)
