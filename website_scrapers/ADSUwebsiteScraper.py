@@ -1,3 +1,4 @@
+from Announcement import Announcement
 from website_scrapers.WebsiteScraper import WebsiteScraper
 
 from pyquery import PyQuery as pq
@@ -42,15 +43,7 @@ class ADSUwebsiteScraper(WebsiteScraper):
 
             preview_of_the_announcement_content = pq(announcement).find("div.post_excerpt > p").text()
 
-            announcement_to_be_published = {
-                "website": "adsu",
-                "title": title,
-                "link_to_detail_page": link_to_detail_page,
-                "publication_date": publication_date,
-                "reformatted_publication_date": reformatted_publication_date,
-                "announcement_tags": announcement_tags,
-                "preview_of_the_announcement_content": preview_of_the_announcement_content
-            }
+            announcement_to_be_published = Announcement("adsu", title, link_to_detail_page, publication_date, reformatted_publication_date, announcement_tags, preview_of_the_announcement_content)
             announcements_to_be_published.append(announcement_to_be_published)
 
         return announcements_to_be_published

@@ -44,8 +44,14 @@ class WebsiteScraper(ABC): # this is a formal interface
         return pq(response.content)
 
     @staticmethod
-    def debug_by_printing_prettified_json(announcement):
-        print(json.dumps(announcement, indent=4))
+    def debug_by_printing_prettified_json(list_of_announcement_objects):
+        list_of_announcement_dictionaries = []
+
+        for announcement_object in list_of_announcement_objects:
+            announcement_dictionary = announcement_object.__dict__
+            list_of_announcement_dictionaries.append(announcement_dictionary)
+
+        print(json.dumps(list_of_announcement_dictionaries, indent=4))
 
     def check_if_the_announcement_must_be_scraped(self, announcement_publication_date, announcement_url):
         with open(self.db_filename, 'r', encoding='utf-8') as json_file:

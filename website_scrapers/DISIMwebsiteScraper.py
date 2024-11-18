@@ -1,3 +1,4 @@
+from Announcement import Announcement
 from website_scrapers.WebsiteScraper import WebsiteScraper
 
 from pyquery import PyQuery as pq
@@ -53,15 +54,7 @@ class DISIMwebsiteScraper(WebsiteScraper):
             announcement_tags = DISIMwebsiteScraper.get_announcement_tags(pq(announcement).find("p.post_meta > span.tags > a"))
             preview_of_the_announcement_content = pq(announcement).find("p:nth-child(2)").text()
 
-            announcement_to_be_published = {
-                "website": "disim",
-                "title": title,
-                "link_to_detail_page": link_to_detail_page,
-                "publication_date": publication_date,
-                "reformatted_publication_date": reformatted_publication_date,
-                "announcement_tags": announcement_tags,
-                "preview_of_the_announcement_content": preview_of_the_announcement_content
-            }
+            announcement_to_be_published = Announcement("disim", title, link_to_detail_page, publication_date, reformatted_publication_date, announcement_tags, preview_of_the_announcement_content)
             announcements_to_be_published.append(announcement_to_be_published)
 
         return announcements_to_be_published
