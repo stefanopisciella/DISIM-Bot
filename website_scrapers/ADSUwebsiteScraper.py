@@ -13,6 +13,9 @@ class ADSUwebsiteScraper(WebsiteScraper):
         return cls._instance
     # END singleton design pattern
 
+    def __init__(self):
+        super().__init__("adsu_db.json")
+
     def get_announcements(self):
         domain = "https://www.adsuaq.org/"
 
@@ -28,7 +31,7 @@ class ADSUwebsiteScraper(WebsiteScraper):
             reformatted_publication_date = super().reformat_date(publication_date)
             link_to_detail_page = pq(announcement).find("h4 > a").attr("href")
 
-            if not super().check_if_the_announcement_must_be_scraped(False, reformatted_publication_date, link_to_detail_page):
+            if not super().check_if_the_announcement_must_be_scraped(reformatted_publication_date, link_to_detail_page):
                 # the current announcement has already been scraped ==> don't continue scraping the current announcement
                 continue
 

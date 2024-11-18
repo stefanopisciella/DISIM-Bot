@@ -5,6 +5,9 @@ import requests, json
 from pyquery import PyQuery as pq
 
 class WebsiteScraper(ABC): # this is a formal interface
+    def __init__(self, db_filename):
+        self.db_filename = db_filename
+
     @staticmethod
     @abstractmethod
     def get_announcements(self):
@@ -44,11 +47,8 @@ class WebsiteScraper(ABC): # this is a formal interface
     def debug_by_printing_prettified_json(announcement):
         print(json.dumps(announcement, indent=4))
 
-    @staticmethod
-    def check_if_the_announcement_must_be_scraped(is_a_disim_announcement, announcement_publication_date, announcement_url):
-        json_filename = "disim_db.json" if is_a_disim_announcement else "adsu_db.json"
-
-        with open(json_filename, 'r', encoding='utf-8') as json_file:
+    def check_if_the_announcement_must_be_scraped(self, announcement_publication_date, announcement_url):
+        with open(self.db_filename, 'r', encoding='utf-8') as json_file:
             json_content = json.load(json_file)
 
             if announcement_publication_date < json_content["last_scraped_announcement_publication_date"]:
@@ -59,7 +59,7 @@ class WebsiteScraper(ABC): # this is a formal interface
 
                 json_content["last_scraped_announcement_publication_date"] = announcement_publication_date
                 json_content["announcements_urls"] = [announcement_url]
-                WebsiteScraper.write_db_file(json_filename, json_content)
+                WebsiteScraper.write_db_file(self.db_filename, json_content)
                 return True
             elif announcement_publication_date == json_content["last_scraped_announcement_publication_date"]:
                 # retrive all the urls relative to all announcement published on the disim website on the day of announcement_publication_date
@@ -72,10 +72,10 @@ class WebsiteScraper(ABC): # this is a formal interface
                     # the announcement to be checked hasn't been scraped yet
 
                     json_content["announcements_urls"].append(announcement_url)
-                    WebsiteScraper.write_db_file(json_filename, json_content)
+                    WebsiteScraper.write_db_file(self.db_filename, json_content)
                     return True
 
     @staticmethod
-    def write_db_file(json_filename, data):
-        with open(json_filename, 'w', encoding='utf-8') as json_file:
+    def write_db_file(db_filename, data):
+        with open(db_filename, 'w', encoding='utf-8') as json_file:
             json.dump(data, json_file, indent=4)
