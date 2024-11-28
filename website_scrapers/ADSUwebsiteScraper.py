@@ -1,4 +1,6 @@
 from Announcement import Announcement
+from Tag import Tag
+
 from website_scrapers.WebsiteScraper import WebsiteScraper
 
 from pyquery import PyQuery as pq
@@ -38,8 +40,13 @@ class ADSUwebsiteScraper(WebsiteScraper):
 
             title = pq(announcement).find("h4 > a").text()
 
-            announcement_tags = pq(announcement).find("div.stm_post_details > ul > li.post_cat > span").text()
-            announcement_tags = announcement_tags.split(', ')
+            # START manage announcement tags
+            string_of_announcement_tags = pq(announcement).find("div.stm_post_details > ul > li.post_cat > span").text()
+
+            announcement_tags = []
+            for announcement_tag in string_of_announcement_tags.split(', '):
+                announcement_tags.append(Tag(announcement_tag, "adsu"))
+            # END manage announcement tags
 
             preview_of_the_announcement_content = pq(announcement).find("div.post_excerpt > p").text()
 

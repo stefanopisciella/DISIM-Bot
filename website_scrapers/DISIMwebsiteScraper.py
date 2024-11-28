@@ -1,4 +1,6 @@
 from Announcement import Announcement
+from Tag import Tag
+
 from website_scrapers.WebsiteScraper import WebsiteScraper
 
 from pyquery import PyQuery as pq
@@ -23,6 +25,7 @@ class DISIMwebsiteScraper(WebsiteScraper):
         second_slash = original_url.find('/', first_slash + 1)
         return original_url[:second_slash]
 
+    """
     @staticmethod
     def get_announcement_tags(tags):
         text_of_tags = []
@@ -30,6 +33,7 @@ class DISIMwebsiteScraper(WebsiteScraper):
             text_of_tags.append(pq(tag).text())
 
         return text_of_tags
+    """
 
     def get_announcements(self):
         domain = "https://www.disim.univaq.it/"
@@ -51,7 +55,15 @@ class DISIMwebsiteScraper(WebsiteScraper):
                 continue
 
             title = pq(announcement).find("h5 > a").text()
-            announcement_tags = DISIMwebsiteScraper.get_announcement_tags(pq(announcement).find("p.post_meta > span.tags > a"))
+
+            # START manage announcement tags
+            string_of_announcement_tags = pq(announcement).find("p.post_meta > span.tags > a").text()
+
+            announcement_tags = []
+            for announcement_tag in string_of_announcement_tags.split(', '):
+                announcement_tags.append(Tag(announcement_tag, "disim"))
+            # END manage announcement tags
+
             preview_of_the_announcement_content = pq(announcement).find("p:nth-child(2)").text()
 
             announcement_to_be_published = Announcement("disim", title, link_to_detail_page, publication_date, reformatted_publication_date, announcement_tags, preview_of_the_announcement_content)

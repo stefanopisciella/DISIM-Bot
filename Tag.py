@@ -1,4 +1,4 @@
-class Announcement:
+class Tag:
 
     def __init__(self, name, website):
         self.name = name

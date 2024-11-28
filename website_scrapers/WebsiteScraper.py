@@ -48,6 +48,17 @@ class WebsiteScraper(ABC): # this is a formal interface
         list_of_announcement_dictionaries = []
 
         for announcement_object in list_of_announcement_objects:
+            # START conversion of announcement tags from objects to dictionaries
+            list_of_tag_objects_relative_to_the_announcement = announcement_object.get_announcement_tags()
+
+            list_of_tag_dictionaries_relative_to_the_announcement = []
+            for tag_object in list_of_tag_objects_relative_to_the_announcement:
+                tag_dictionary = tag_object.__dict__
+                list_of_tag_dictionaries_relative_to_the_announcement.append(tag_dictionary)
+
+            announcement_object.set_announcement_tags(list_of_tag_dictionaries_relative_to_the_announcement)
+            # END conversion of announcement tags from objects to dictionaries
+
             announcement_dictionary = announcement_object.__dict__
             list_of_announcement_dictionaries.append(announcement_dictionary)
 
