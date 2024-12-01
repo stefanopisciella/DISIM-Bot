@@ -1,5 +1,5 @@
-from Announcement import Announcement
-from Tag import Tag
+from domain.Announcement import Announcement
+from domain.Tag import Tag
 
 from website_scrapers.WebsiteScraper import WebsiteScraper
 

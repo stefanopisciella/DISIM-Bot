@@ -3,21 +3,32 @@ import sqlite3
 
 class AbstractModel:
     @staticmethod
-    def execute_query(query, is_a_crud_statement=False):
+    def execute_query(query, query_parameters, is_a_crud_statement=False):
         try:  # it automatically closes the connection with the DB when not necessary
             with sqlite3.connect("telegram_bot.db") as conn:
                 cursor = conn.cursor()
-                cursor.execute(query)
 
-                if not is_a_crud_statement:
+                if query_parameters is not None:
+                    cursor.execute(query, query_parameters)
+                else:
+                    cursor.execute(query)
+
+                if is_a_crud_statement:
+                    last_inserted_tuple_id = cursor.lastrowid
+                    return last_inserted_tuple_id  # is useful only after executing an INSERT statement
+                else:
                     results = cursor.fetchall()
                     return results
         except sqlite3.Error as e:
             print(f"Error while operating with the DB: {e}")
-            if not is_a_crud_statement:
+
+            if is_a_crud_statement:
+                return None  # this value is referred to the last_inserted_tuple_id
+            else:
                 return []
 
-    def create_tables(self):
+    @staticmethod
+    def create_tables():
         queries = ['''
             CREATE TABLE IF NOT EXISTS announcement (
             ID INTEGER PRIMARY KEY,
@@ -29,8 +40,8 @@ class AbstractModel:
             preview_of_the_announcement_content text);''',
         ''' CREATE TABLE IF NOT EXISTS tag (
             ID INTEGER PRIMARY KEY,
-            name text,
-            website text);''',
+            name text NOT NULL CHECK (tag.name <> ''),
+            website text NOT NULL CHECK (tag.website <> ''));''',
          '''CREATE TABLE IF NOT EXISTS user (
             ID INTEGER PRIMARY KEY,
             chat_id text);''',
@@ -50,9 +61,8 @@ class AbstractModel:
             FOREIGN KEY (announcement_id) REFERENCES announcement(ID)); ''']
 
         for query in queries:
-            self.execute_query(query, True)
+            AbstractModel.execute_query(query, None, True)
 
 
 if __name__ == '__main__':
-    abstract_model = AbstractModel()
-    abstract_model.create_tables()
+    AbstractModel.create_tables()
