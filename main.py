@@ -1,6 +1,7 @@
-from website_scrapers.WebsiteScraper import WebsiteScraper
 from website_scrapers.DISIMwebsiteScraper import DISIMwebsiteScraper
 from website_scrapers.ADSUwebsiteScraper import ADSUwebsiteScraper
+
+from SendFilteredAnnouncements import SendFilteredAnnouncements
 
 from model.Announcement import Announcement as AnnouncementModel
 
@@ -44,5 +45,9 @@ if __name__ == '__main__':
         announcement_model = AnnouncementModel()
         announcement_model.bulk_insert(announcements_to_be_published)
         # END insert announcements into SQLite DB
+
+        SendFilteredAnnouncements.send_announcements_filtered_by_tags_of_interest_to_user(announcements_to_be_published)
+
+        del announcements_to_be_published  # free up RAM
 
         time.sleep(conf.HOURS_BETWEEN_SCRAPING * SECONDS_IN_ONE_HOUR)

@@ -2,7 +2,7 @@ from model.User import User as UserModel
 
 class SendFilteredAnnouncements:
     @staticmethod
-    def filter_announcements_by_tags_of_interest_to_user(announcements):
+    def send_announcements_filtered_by_tags_of_interest_to_user(announcements):
         users = UserModel.get_all()
 
         for user in users:
