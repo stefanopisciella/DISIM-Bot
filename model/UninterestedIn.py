@@ -1,6 +1,5 @@
 from model.AbstractModel import AbstractModel
 
-from domain.UninterestedIn import UninterestedIn as UninterestedInDomain
 from domain.Tag import Tag as TagDomain
 
 

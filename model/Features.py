@@ -1,6 +1,5 @@
 from model.AbstractModel import AbstractModel
 
-from domain.Features import Features as FeaturesDomain
 
 class Features(AbstractModel):
     # START singleton design pattern

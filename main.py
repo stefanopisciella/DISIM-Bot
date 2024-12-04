@@ -8,12 +8,6 @@ import configuration_file as conf
 
 import time
 
-from model.User import User as UserModel
-from domain.User import User as UserDomain
-from domain.UninterestedIn import UninterestedIn as UninterestedInDomain
-from model.UninterestedIn import UninterestedIn as UninterestedInModel
-
-
 SECONDS_IN_ONE_HOUR = 3600
 
 '''

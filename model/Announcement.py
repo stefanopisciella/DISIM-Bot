@@ -3,7 +3,6 @@ from model.Tag import Tag as TagModel
 from model.Features import Features as FeaturesModel
 
 from domain.Announcement import Announcement as AnnouncementDomain
-from domain.Features import Features
 
 
 class Announcement(AbstractModel):
