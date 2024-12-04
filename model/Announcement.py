@@ -36,8 +36,7 @@ class Announcement(AbstractModel):
         for announcement_tag in announcement_tags:
             last_inserted_announcement_tag_id = tag_model.insert(announcement_tag) # insert the current tag into the tag table
 
-            features = Features(last_inserted_announcement_tag_id, last_inserted_announcement_id)
-            features_model.insert(features)
+            features_model.insert(last_inserted_announcement_tag_id, last_inserted_announcement_id)
         # END manage announcement tags
 
         return  last_inserted_announcement_id

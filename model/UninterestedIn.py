@@ -15,16 +15,15 @@ class UninterestedIn(AbstractModel):
     # END singleton design pattern
 
     @staticmethod
-    def insert(uninterested_in: UninterestedInDomain):
+    def insert(user_id, tag_id):
         query = '''INSERT INTO uninterested_in (user_id, tag_id) VALUES (:user_id, :tag_id);'''
-        query_parameters = {"user_id": uninterested_in.get_user_id(), "tag_id": uninterested_in.get_tag_id()}
+        query_parameters = {"user_id": user_id, "tag_id": tag_id}
 
         return AbstractModel.execute_query(query, query_parameters, True)
 
-    def bulk_insert(self, uninterested_in_list):
-        for uninterested_in in uninterested_in_list:
-            self.insert(uninterested_in)
-
+    def bulk_insert(self, user_id, user_uninterested_tag_ids):
+        for user_uninterested_tag_id in user_uninterested_tag_ids:
+            self.insert(user_id, user_uninterested_tag_id)
 
     @staticmethod
     def get_user_uninterested_tags(user_id):

@@ -13,8 +13,8 @@ class Features(AbstractModel):
     # END singleton design pattern
 
     @staticmethod
-    def insert(features: FeaturesDomain):
+    def insert(tag_id, announcement_id):
         query = '''INSERT INTO features (tag_id, announcement_id) VALUES (:tag_id, :announcement_id);'''
-        query_parameters = {"tag_id": features.get_tag_id(), "announcement_id": features.get_announcement_id()}
+        query_parameters = {"tag_id": tag_id, "announcement_id": announcement_id}
 
         return AbstractModel.execute_query(query, query_parameters, True)
