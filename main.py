@@ -11,23 +11,6 @@ import time
 
 SECONDS_IN_ONE_HOUR = 3600
 
-'''
-def test_the_insertion_into_db_of_user_data_and_disinterests():  # this function is temporary, so it will be deleted
-    user_model = UserModel()
-    uninterested_in_model = UninterestedInModel()
-
-    # START user #1
-    user1 = UserDomain("000000001")
-    user1_id = user_model.insert(user1)
-
-    user1_uninterested_in =[
-        UninterestedInDomain(user1_id, 1),
-        UninterestedInDomain(user1_id, 2)
-    ]
-
-    uninterested_in_model.bulk_insert(user1_uninterested_in)
-    # END user #1
-'''
 
 if __name__ == '__main__':
     disim = DISIMwebsiteScraper()
