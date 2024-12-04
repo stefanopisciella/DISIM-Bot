@@ -34,8 +34,3 @@ class Tag(AbstractModel):
 
         tag_id = AbstractModel.execute_query(query, query_parameters)
         return tag_id[0][0] if tag_id else None
-
-
-if __name__ == "__main__":
-    tag_model = Tag()
-    tag_model.insert(TagDomain("Generale", "disim"))

@@ -33,8 +33,6 @@ def test_the_insertion_into_db_of_user_data_and_disinterests():  # this function
     # END user #1
 
 
-
-
 if __name__ == '__main__':
     disim = DISIMwebsiteScraper()
     adsu = ADSUwebsiteScraper()

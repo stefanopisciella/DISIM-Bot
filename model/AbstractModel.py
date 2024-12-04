@@ -3,9 +3,11 @@ import sqlite3
 
 class AbstractModel:
     @staticmethod
-    def execute_query(query, query_parameters, is_a_crud_statement=False):
+    def execute_query(query, query_parameters=None, is_a_crud_statement=False):
         try:  # it automatically closes the connection with the DB when not necessary
             with sqlite3.connect("telegram_bot.db") as conn:
+                conn.row_factory = sqlite3.Row  # to enable column name access
+
                 cursor = conn.cursor()
 
                 if query_parameters is not None:

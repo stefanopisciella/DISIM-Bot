@@ -16,3 +16,7 @@ class Tag:
     def set_website(self, website):
         self.website = website
 
+    def equals(self, other_tag):
+        return self.name == other_tag.name and self.website == other_tag.website
+
+

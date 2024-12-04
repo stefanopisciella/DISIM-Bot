@@ -1,4 +1,5 @@
 from model.AbstractModel import AbstractModel
+from model.UninterestedIn import UninterestedIn as UninterestedInModel
 
 from domain.User import User as UserDomain
 
@@ -19,3 +20,16 @@ class User(AbstractModel):
         query_parameters = {"chat_id": user.get_chat_id()}
 
         return AbstractModel.execute_query(query, query_parameters, True)
+
+    @staticmethod
+    def get_all():
+        query = '''SELECT * FROM user'''
+
+        results = AbstractModel.execute_query(query)
+
+        users = []
+        for result in results:
+            user_uninterested_tags = UninterestedInModel.get_user_uninterested_tags(result["ID"])
+            users.append(UserDomain(result['chat_id'], user_uninterested_tags))
+
+        return users
