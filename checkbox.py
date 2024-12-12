@@ -11,8 +11,8 @@ FIRST_LEVEL_OPTIONS = ["DISIM", "ADSU"]
 
 # Options for the second level (simulated checkboxes)
 SECOND_LEVEL_OPTIONS = {
-    "DISIM": {"Option A": False, "Option B": False},
-    "ADSU": {"Option X": False, "Option Y": False},
+    "DISIM": {"Annunci agli Studenti": True, "Didattica": True},
+    "ADSU": {"News": True, "In Evidenza": True},
 }
 
 
@@ -29,18 +29,18 @@ async def send_first_level_buttons(update: Update, context: ContextTypes.DEFAULT
     buttons = []
     for option in FIRST_LEVEL_OPTIONS:
         buttons.append([InlineKeyboardButton(option, callback_data=f"first:{option}")])
-    buttons.append([InlineKeyboardButton("Save All", callback_data="save_all")])
+    buttons.append([InlineKeyboardButton("Salva 💾", callback_data="save_all")])
 
     reply_markup = InlineKeyboardMarkup(buttons)
     if update.callback_query:
         # "update.callback_query" is not None ==> user interacted with a button ==> don't create a new message but just reuse the current one
         await update.callback_query.edit_message_text(
-            "Choose a group or save your selections:", reply_markup=reply_markup
+            "Seleziona il sito per gestire i tuoi tag di interesse:", reply_markup=reply_markup
         )
     else:
         # "update.callback_query" is None ==> user hasn't interacted with a button but through a regular message (for instance the "start" message) ==> create a new message and append to it the inline keyboard
         await update.message.reply_text(
-            "Choose a group or save your selections:", reply_markup=reply_markup
+            "Seleziona il sito per gestire i tuoi tag di interesse:", reply_markup=reply_markup
         )
 
 
@@ -53,11 +53,11 @@ async def send_second_level_buttons(update: Update, context: ContextTypes.DEFAUL
         buttons.append(
             [InlineKeyboardButton(f"{status} {option}", callback_data=f"second:{group}:{option}")]
         )
-    buttons.append([InlineKeyboardButton("Back", callback_data="back")])
+    buttons.append([InlineKeyboardButton("<< Indietro", callback_data="back")])
 
     reply_markup = InlineKeyboardMarkup(buttons)
     await update.callback_query.edit_message_text(  # reuse the current message
-        f"Choose options for {group}:", reply_markup=reply_markup
+        f"Seleziona i tuoi tag di interesse per il sito {group}:", reply_markup=reply_markup
     )
 
 
@@ -91,7 +91,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                     selected_options.append(option)
             result.append(f"{group}: {', '.join(selected_options) or 'None'}")
         await query.edit_message_text(
-            f"You saved the following selections:\n" + "\n".join(result)
+            f"Hai salvato i seguenti tag di interesse:\n" + "\n".join(result)
         )
 
     elif data == "back":
