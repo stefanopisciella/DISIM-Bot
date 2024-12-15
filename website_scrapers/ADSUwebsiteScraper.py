@@ -45,12 +45,12 @@ class ADSUwebsiteScraper(WebsiteScraper):
 
             announcement_tags = []
             for announcement_tag in string_of_announcement_tags.split(', '):
-                announcement_tags.append(Tag(announcement_tag, "adsu"))
+                announcement_tags.append(Tag(announcement_tag, "ADSU"))
             # END manage announcement tags
 
             preview_of_the_announcement_content = pq(announcement).find("div.post_excerpt > p").text()
 
-            announcement_to_be_published = Announcement("adsu", title, link_to_detail_page, publication_date, reformatted_publication_date, announcement_tags, preview_of_the_announcement_content)
+            announcement_to_be_published = Announcement("ADSU", title, link_to_detail_page, publication_date, reformatted_publication_date, announcement_tags, preview_of_the_announcement_content)
             announcements_to_be_published.append(announcement_to_be_published)
 
         return announcements_to_be_published

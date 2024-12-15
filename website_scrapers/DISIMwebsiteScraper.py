@@ -61,12 +61,12 @@ class DISIMwebsiteScraper(WebsiteScraper):
 
             announcement_tags = []
             for announcement_tag in string_of_announcement_tags.split(', '):
-                announcement_tags.append(Tag(announcement_tag, "disim"))
+                announcement_tags.append(Tag(announcement_tag, "DISIM"))
             # END manage announcement tags
 
             preview_of_the_announcement_content = pq(announcement).find("p:nth-child(2)").text()
 
-            announcement_to_be_published = Announcement("disim", title, link_to_detail_page, publication_date, reformatted_publication_date, announcement_tags, preview_of_the_announcement_content)
+            announcement_to_be_published = Announcement("DISIM", title, link_to_detail_page, publication_date, reformatted_publication_date, announcement_tags, preview_of_the_announcement_content)
             announcements_to_be_published.append(announcement_to_be_published)
 
         return announcements_to_be_published

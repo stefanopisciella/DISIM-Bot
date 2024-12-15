@@ -25,6 +25,16 @@ class Tag(AbstractModel):
         return AbstractModel.execute_query(query, query_parameters, True)
 
     @staticmethod
+    def get_tag_names_by_website(website):
+        query = '''SELECT name 
+                   FROM tag
+                   WHERE website = :website ;'''
+        query_parameters = {"website": website}
+
+        results = AbstractModel.execute_query(query, query_parameters)
+        return AbstractModel.get_array_column_from_two_dimensional_array(results, "name")
+
+    @staticmethod
     def get_the_id_of_the_passed_tag_if_already_exists(tag: TagDomain):
         query = '''SELECT ID
                    FROM tag t

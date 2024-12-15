@@ -73,6 +73,19 @@ class AbstractModel:
         for query in queries:
             AbstractModel.execute_query(query, None, True)
 
+    # to extract a column (one-dimensional array) from a two-dimensional array
+    @staticmethod
+    def get_array_column_from_two_dimensional_array(two_dimensional_arr, column_array_key):
+        if not two_dimensional_arr:
+            return []
+
+        column = []
+        for row in two_dimensional_arr:
+            if column_array_key in row.keys():
+                column.append(row[column_array_key])
+
+        return column
+
 
 if __name__ == '__main__':
     AbstractModel.create_tables()
