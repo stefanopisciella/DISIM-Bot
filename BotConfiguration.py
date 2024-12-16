@@ -23,6 +23,8 @@ class BotConfiguration:
             for tag in TagModel.get_tag_names_by_website(website):
                 second_level_options[website][tag] = True
 
+            second_level_options[website]["uninterested_website"] = False
+
         return second_level_options
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -33,10 +35,10 @@ class BotConfiguration:
 
     async def send_first_level_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE, chat_id: int) -> None:
         """Send the first-level buttons."""
-        buttons = [
-            [InlineKeyboardButton(option, callback_data=f"first:{option}")]
-            for option in self.first_level_options
-        ]
+        buttons = []
+        for option in self.first_level_options:
+            buttons.append([InlineKeyboardButton(option, callback_data=f"first:{option}")])
+
         buttons.append([InlineKeyboardButton("Salva 💾", callback_data="save_all")])
 
         reply_markup = InlineKeyboardMarkup(buttons)
@@ -49,12 +51,14 @@ class BotConfiguration:
                 "Seleziona il sito per gestire i tuoi tag di interesse:", reply_markup=reply_markup
             )
 
-    async def send_second_level_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE, chat_id: int, group: str) -> None:
+    async def send_second_level_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE, chat_id: int,
+                                        group: str) -> None:
         """Send the second-level (checkbox) buttons."""
-        buttons = [
-            [InlineKeyboardButton(f"{'✅' if selected else '❌'} {option}", callback_data=f"second:{group}:{option}")]
-            for option, selected in self.user_selections[chat_id][group].items()
-        ]
+        buttons = []
+        for option, selected in self.user_selections[chat_id][group].items():
+            buttons.append([InlineKeyboardButton(f"{'\u2705' if selected else '\u274c'} {option}",
+                                                 callback_data=f"second:{group}:{option}")])
+
         buttons.append([InlineKeyboardButton("<< Indietro", callback_data="back")])
 
         reply_markup = InlineKeyboardMarkup(buttons)
@@ -82,7 +86,10 @@ class BotConfiguration:
         elif data == "save_all":
             result = []
             for group, options in self.user_selections[chat_id].items():
-                selected_options = [option for option, selected in options.items() if selected]
+                selected_options = []
+                for option, selected in options.items():
+                    if selected:
+                        selected_options.append(option)
                 result.append(f"{group}: {', '.join(selected_options) or 'None'}")
             await query.edit_message_text(
                 f"Hai salvato i seguenti tag di interesse:\n" + "\n".join(result)
@@ -99,6 +106,7 @@ class BotConfiguration:
         application.add_handler(CallbackQueryHandler(self.button_callback))
 
         application.run_polling()
+
 
 if __name__ == "__main__":
     bot = BotConfiguration(conf.TELEGRAM_BOT_TOKEN)
