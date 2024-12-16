@@ -3,6 +3,8 @@ from telegram.ext import (
     ApplicationBuilder, CallbackQueryHandler, CommandHandler, ContextTypes
 )
 
+from model.Tag import Tag as TagModel
+
 import configuration_file as conf
 
 
@@ -11,16 +13,22 @@ class BotConfiguration:
         self.token = token
         self.user_selections = {}
         self.first_level_options = ["DISIM", "ADSU"]
-        self.second_level_options = {
-            "DISIM": {"Annunci agli Studenti": True, "Didattica": True},
-            "ADSU": {"News": True, "In Evidenza": True},
-        }
 
+    def get_checkbox_options(self):
+        second_level_options = {}
+        for website in self.first_level_options:
+            if website not in second_level_options:
+                second_level_options[website] = {}  # initialize nested dictionary
+
+            for tag in TagModel.get_tag_names_by_website(website):
+                second_level_options[website][tag] = True
+
+        return second_level_options
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Send a message with first-level buttons."""
         chat_id = update.effective_chat.id
-        self.user_selections[chat_id] = self.second_level_options.copy()
+        self.user_selections[chat_id] = self.get_checkbox_options()
         await self.send_first_level_buttons(update, context, chat_id)
 
     async def send_first_level_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE, chat_id: int) -> None:
