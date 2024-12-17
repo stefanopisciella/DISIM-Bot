@@ -9,6 +9,18 @@ import configuration_file as conf
 
 
 class BotConfiguration:
+    # START constant strings
+    RECIVE_COMUNICATIONS_FROM_THE_SITE = "Ricevi comunicazioni dal sito"
+    NOT_RECIVE_COMUNICATIONS_FROM_THE_SITE = "Non ricevere comunicazioni dal sito"
+    SELECT_THE_WEBSITE = "Seleziona il sito per gestire i tuoi tag di interesse:"
+    # END constant strings
+
+    # START emoticons
+    NOTIFICATIONS_ICON = "🔔"
+    NO_NOTIFICATIONS_ICON = "🔕"
+
+    # END emoticons
+
     def __init__(self, token):
         self.token = token
         self.user_selections = {}
@@ -44,22 +56,37 @@ class BotConfiguration:
         reply_markup = InlineKeyboardMarkup(buttons)
         if update.callback_query:
             await update.callback_query.edit_message_text(
-                "Seleziona il sito per gestire i tuoi tag di interesse:", reply_markup=reply_markup
+                self.SELECT_THE_WEBSITE, reply_markup=reply_markup
             )
         else:
             await update.message.reply_text(
-                "Seleziona il sito per gestire i tuoi tag di interesse:", reply_markup=reply_markup
+                self.SELECT_THE_WEBSITE, reply_markup=reply_markup
             )
 
     async def send_second_level_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE, chat_id: int,
                                         group: str) -> None:
         """Send the second-level (checkbox) buttons."""
         buttons = []
-        for option, selected in self.user_selections[chat_id][group].items():
-            buttons.append([InlineKeyboardButton(f"{'\u2705' if selected else '\u274c'} {option}",
-                                                 callback_data=f"second:{group}:{option}")])
 
-        buttons.append([InlineKeyboardButton("<< Indietro", callback_data="back")])
+        if self.user_selections[chat_id][group]["uninterested_website"]:
+            # user uninterested in the current website
+
+            button_text = f"{self.NOT_RECIVE_COMUNICATIONS_FROM_THE_SITE} {group} {self.NO_NOTIFICATIONS_ICON}"
+            buttons.append([InlineKeyboardButton(button_text, callback_data=f"second:{group}:uninterested_website")])
+        else:
+            # user interested in the current website
+
+            button_text = f"{self.RECIVE_COMUNICATIONS_FROM_THE_SITE} {group} {self.NOTIFICATIONS_ICON}"
+            buttons.append([InlineKeyboardButton(button_text, callback_data=f"second:{group}:uninterested_website")])
+
+            # START add all buttons relative to tags
+            for option, selected in self.user_selections[chat_id][group].items():
+                if option != "uninterested_website":
+                    button_text = f"{'✅' if selected else '❌'} {option}"
+                    buttons.append([InlineKeyboardButton(button_text, callback_data=f"second:{group}:{option}")])
+            # END add all buttons relative to tags
+
+        buttons.append([InlineKeyboardButton("<< Indietro", callback_data="back")])  # add "turn back" button
 
         reply_markup = InlineKeyboardMarkup(buttons)
         await update.callback_query.edit_message_text(
@@ -86,16 +113,24 @@ class BotConfiguration:
         elif data == "save_all":
             result = []
             for group, options in self.user_selections[chat_id].items():
-                selected_options = []
-                for option, selected in options.items():
-                    if selected:
-                        selected_options.append(option)
-                result.append(f"{group}: {', '.join(selected_options) or 'None'}")
+                if self.user_selections[chat_id][group]["uninterested_website"]:
+                    # user uninterested in the current website
+                    result.append(f"{self.NOT_RECIVE_COMUNICATIONS_FROM_THE_SITE} {group} {self.NO_NOTIFICATIONS_ICON}")
+                else:
+                    # user interested in the current website
+
+                    selected_options = []
+                    for option, selected in options.items():
+                        if option != "uninterested_website" and selected:
+                            selected_options.append(option)
+
+                    result.append(f"{group}: {', '.join(selected_options) or 'nessun tag selezionato'}")
             await query.edit_message_text(
-                f"Hai salvato i seguenti tag di interesse:\n" + "\n".join(result)
+                f"Riepilogo delle tue selezioni:\n\u2022 " + "\n\u2022 ".join(result)
             )
 
         elif data == "back":
+            # user has selected the "turn back" button
             await self.send_first_level_buttons(update, context, chat_id)
 
     def run(self):
