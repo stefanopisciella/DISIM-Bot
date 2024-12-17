@@ -18,7 +18,6 @@ class BotConfiguration:
     # START emoticons
     NOTIFICATIONS_ICON = "🔔"
     NO_NOTIFICATIONS_ICON = "🔕"
-
     # END emoticons
 
     def __init__(self, token):
@@ -111,6 +110,7 @@ class BotConfiguration:
             await self.send_second_level_buttons(update, context, chat_id, group)
 
         elif data == "save_all":
+            # START send to the user a summary of the options he selected
             result = []
             for group, options in self.user_selections[chat_id].items():
                 if self.user_selections[chat_id][group]["uninterested_website"]:
@@ -128,6 +128,7 @@ class BotConfiguration:
             await query.edit_message_text(
                 f"Riepilogo delle tue selezioni:\n\u2022 " + "\n\u2022 ".join(result)
             )
+            # END send to the user a summary of the options he selected
 
         elif data == "back":
             # user has selected the "turn back" button
