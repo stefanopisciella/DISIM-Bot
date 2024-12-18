@@ -15,9 +15,9 @@ class User(AbstractModel):
     # END singleton design pattern
 
     @staticmethod
-    def insert(user: UserDomain):
+    def insert(chat_id):
         query = '''INSERT INTO user (chat_id) VALUES (:chat_id);'''
-        query_parameters = {"chat_id": user.get_chat_id()}
+        query_parameters = {"chat_id": chat_id}
 
         return AbstractModel.execute_query(query, query_parameters, True)
 

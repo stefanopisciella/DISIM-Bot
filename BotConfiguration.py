@@ -4,6 +4,7 @@ from telegram.ext import (
 )
 
 from model.Tag import Tag as TagModel
+from model.User import User as UserModel
 
 import configuration_file as conf
 
@@ -43,6 +44,9 @@ class BotConfiguration:
         chat_id = update.effective_chat.id
         self.user_selections[chat_id] = self.get_checkbox_options()
         await self.send_first_level_buttons(update, context, chat_id)
+
+        user_model = UserModel()
+        user_model.insert(chat_id)  # save user in  DB
 
     async def send_first_level_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE, chat_id: int) -> None:
         """Send the first-level buttons."""
