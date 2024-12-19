@@ -99,7 +99,7 @@ class BotConfiguration:
         )
 
     async def button_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        """Handle button clicks."""
+        """Handle button selection."""
         query = update.callback_query
         await query.answer()
 
@@ -121,7 +121,8 @@ class BotConfiguration:
             for website, options in self.user_selections[chat_id].items():
                 if self.user_selections[chat_id][website]["uninterested_website"]:
                     # user uninterested in the current website
-                    result.append(f"{self.NOT_RECIVE_COMUNICATIONS_FROM_THE_SITE} {website} {self.NO_NOTIFICATIONS_ICON}")
+                    result.append(
+                        f"{self.NOT_RECIVE_COMUNICATIONS_FROM_THE_SITE} {website} {self.NO_NOTIFICATIONS_ICON}")
                 else:
                     # user interested in the current website
 
@@ -162,11 +163,18 @@ class BotConfiguration:
             # user has selected the "turn back" button
             await self.send_first_level_buttons(update, context, chat_id)
 
+    # this function manages the /personalizza command
+    async def personalizza_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        chat_id = update.effective_chat.id
+        self.user_selections[chat_id] = self.get_checkbox_options()
+        await self.send_first_level_buttons(update, context, chat_id)
+
     def run(self):
         """Start the bot."""
         application = ApplicationBuilder().token(self.token).build()
 
         application.add_handler(CommandHandler("start", self.start))
+        application.add_handler(CommandHandler("personalizza", self.personalizza_command))
         application.add_handler(CallbackQueryHandler(self.button_callback))
 
         application.run_polling()
