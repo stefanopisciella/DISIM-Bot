@@ -5,6 +5,8 @@ from telegram.ext import (
 
 from model.Tag import Tag as TagModel
 from model.User import User as UserModel
+from model.UninterestedIn import UninterestedIn as UninterestedInModel
+from model.UninterestedWebsite import UninterestedWebsite as UninterestedWebsiteModel
 
 import configuration_file as conf
 
@@ -133,6 +135,28 @@ class BotConfiguration:
                 f"Riepilogo delle tue selezioni:\n\u2022 " + "\n\u2022 ".join(result)
             )
             # END send to the user a summary of the options he selected
+
+            # START save user preferences in DB
+            user_model = UserModel()
+            user_id = user_model.get_user_id_by_his_chat_id(chat_id)
+
+            uninterested_in_model = UninterestedInModel()
+            uninterested_in_model.remove_uninterested_tags_by_user_id(user_id)
+
+            uninterested_website_model = UninterestedWebsiteModel()
+            uninterested_website_model.remove_uninterested_websites_by_user_id(user_id)
+
+            for group, options in self.user_selections[chat_id].items():
+                for option, selected in options.items():
+                    if not selected:
+                        if option == "uninterested_website":
+                            # the current option is not a tag name
+                            uninterested_website_model.insert(user_id, group)
+                        else:
+                            # the current option is a tag name
+                            tag_id = TagModel.get_tag_id_by_name_and_website(option, group)
+                            uninterested_in_model.insert(user_id, tag_id)
+            # END save user preferences in DB
 
         elif data == "back":
             # user has selected the "turn back" button
