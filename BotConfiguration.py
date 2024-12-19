@@ -69,33 +69,33 @@ class BotConfiguration:
             )
 
     async def send_second_level_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE, chat_id: int,
-                                        group: str) -> None:
+                                        website: str) -> None:
         """Send the second-level (checkbox) buttons."""
         buttons = []
 
-        if self.user_selections[chat_id][group]["uninterested_website"]:
+        if self.user_selections[chat_id][website]["uninterested_website"]:
             # user uninterested in the current website
 
-            button_text = f"{self.NOT_RECIVE_COMUNICATIONS_FROM_THE_SITE} {group} {self.NO_NOTIFICATIONS_ICON}"
-            buttons.append([InlineKeyboardButton(button_text, callback_data=f"second:{group}:uninterested_website")])
+            button_text = f"{self.NOT_RECIVE_COMUNICATIONS_FROM_THE_SITE} {website} {self.NO_NOTIFICATIONS_ICON}"
+            buttons.append([InlineKeyboardButton(button_text, callback_data=f"second:{website}:uninterested_website")])
         else:
             # user interested in the current website
 
-            button_text = f"{self.RECIVE_COMUNICATIONS_FROM_THE_SITE} {group} {self.NOTIFICATIONS_ICON}"
-            buttons.append([InlineKeyboardButton(button_text, callback_data=f"second:{group}:uninterested_website")])
+            button_text = f"{self.RECIVE_COMUNICATIONS_FROM_THE_SITE} {website} {self.NOTIFICATIONS_ICON}"
+            buttons.append([InlineKeyboardButton(button_text, callback_data=f"second:{website}:uninterested_website")])
 
             # START add all buttons relative to tags
-            for option, selected in self.user_selections[chat_id][group].items():
+            for option, selected in self.user_selections[chat_id][website].items():
                 if option != "uninterested_website":
                     button_text = f"{'✅' if selected else '❌'} {option}"
-                    buttons.append([InlineKeyboardButton(button_text, callback_data=f"second:{group}:{option}")])
+                    buttons.append([InlineKeyboardButton(button_text, callback_data=f"second:{website}:{option}")])
             # END add all buttons relative to tags
 
         buttons.append([InlineKeyboardButton("<< Indietro", callback_data="back")])  # add "turn back" button
 
         reply_markup = InlineKeyboardMarkup(buttons)
         await update.callback_query.edit_message_text(
-            f"Seleziona i tuoi tag di interesse per il sito {group}:", reply_markup=reply_markup
+            f"Seleziona i tuoi tag di interesse per il sito {website}:", reply_markup=reply_markup
         )
 
     async def button_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -107,21 +107,21 @@ class BotConfiguration:
         data = query.data
 
         if data.startswith("first:"):
-            group = data.split(":")[1]
-            await self.send_second_level_buttons(update, context, chat_id, group)
+            website = data.split(":")[1]
+            await self.send_second_level_buttons(update, context, chat_id, website)
 
         elif data.startswith("second:"):
-            _, group, option = data.split(":")
-            self.user_selections[chat_id][group][option] = not self.user_selections[chat_id][group][option]
-            await self.send_second_level_buttons(update, context, chat_id, group)
+            _, website, option = data.split(":")
+            self.user_selections[chat_id][website][option] = not self.user_selections[chat_id][website][option]
+            await self.send_second_level_buttons(update, context, chat_id, website)
 
         elif data == "save_all":
             # START send to the user a summary of the options he selected
             result = []
-            for group, options in self.user_selections[chat_id].items():
-                if self.user_selections[chat_id][group]["uninterested_website"]:
+            for website, options in self.user_selections[chat_id].items():
+                if self.user_selections[chat_id][website]["uninterested_website"]:
                     # user uninterested in the current website
-                    result.append(f"{self.NOT_RECIVE_COMUNICATIONS_FROM_THE_SITE} {group} {self.NO_NOTIFICATIONS_ICON}")
+                    result.append(f"{self.NOT_RECIVE_COMUNICATIONS_FROM_THE_SITE} {website} {self.NO_NOTIFICATIONS_ICON}")
                 else:
                     # user interested in the current website
 
@@ -130,7 +130,7 @@ class BotConfiguration:
                         if option != "uninterested_website" and selected:
                             selected_options.append(option)
 
-                    result.append(f"{group}: {', '.join(selected_options) or 'nessun tag selezionato'}")
+                    result.append(f"{website}: {', '.join(selected_options) or 'nessun tag selezionato'}")
             await query.edit_message_text(
                 f"Riepilogo delle tue selezioni:\n\u2022 " + "\n\u2022 ".join(result)
             )
@@ -146,15 +146,15 @@ class BotConfiguration:
             uninterested_website_model = UninterestedWebsiteModel()
             uninterested_website_model.remove_uninterested_websites_by_user_id(user_id)
 
-            for group, options in self.user_selections[chat_id].items():
+            for website, options in self.user_selections[chat_id].items():
                 for option, selected in options.items():
                     if not selected:
                         if option == "uninterested_website":
                             # the current option is not a tag name
-                            uninterested_website_model.insert(user_id, group)
+                            uninterested_website_model.insert(user_id, website)
                         else:
                             # the current option is a tag name
-                            tag_id = TagModel.get_tag_id_by_name_and_website(option, group)
+                            tag_id = TagModel.get_tag_id_by_name_and_website(option, website)
                             uninterested_in_model.insert(user_id, tag_id)
             # END save user preferences in DB
 
