@@ -21,6 +21,7 @@ class BotConfiguration:
     # START emoticons
     NOTIFICATIONS_ICON = "🔔"
     NO_NOTIFICATIONS_ICON = "🔕"
+
     # END emoticons
 
     def __init__(self, token):
@@ -45,10 +46,16 @@ class BotConfiguration:
         """Send a message with first-level buttons."""
         chat_id = update.effective_chat.id
         self.user_selections[chat_id] = self.get_checkbox_options()
-        await self.send_first_level_buttons(update, context, chat_id)
 
         user_model = UserModel()
-        user_model.insert(chat_id)  # save user in  DB
+
+        user_id = user_model.get_user_id_by_his_chat_id(chat_id)
+        if user_id is None:
+            # the user has not yet registered
+
+            await self.send_first_level_buttons(update, context, chat_id)
+
+            user_model.insert(chat_id)  # save user in  DB
 
     async def send_first_level_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE, chat_id: int) -> None:
         """Send the first-level buttons."""
@@ -106,8 +113,31 @@ class BotConfiguration:
         chat_id = query.message.chat.id
         data = query.data
 
+        user_model = UserModel()
+        user_id = user_model.get_user_id_by_his_chat_id(chat_id)
+
+        uninterested_website_model = UninterestedWebsiteModel()
+        uninterested_in_model = UninterestedInModel()
+
         if data.startswith("first:"):
             website = data.split(":")[1]
+
+            # START get user preferences from DB
+            if user_id is not None:
+                # current user already registered
+
+                user_uninterested_websites = uninterested_website_model.get_user_uninterested_websites(user_id)
+                for user_uninterested_website in user_uninterested_websites:
+                    self.user_selections[chat_id][user_uninterested_website]["uninterested_website"] = True
+
+                user_uninterested_tags = uninterested_in_model.get_user_uninterested_tags(user_id)
+                for user_uninterested_tag in user_uninterested_tags:
+                    name_of_user_uninterested_tag = user_uninterested_tag.get_name()
+                    website_of_user_uninterested_tag = user_uninterested_tag.get_website()
+
+                    self.user_selections[chat_id][website_of_user_uninterested_tag][name_of_user_uninterested_tag] = False
+            # END get user preferences from DB
+
             await self.send_second_level_buttons(update, context, chat_id, website)
 
         elif data.startswith("second:"):
@@ -138,23 +168,22 @@ class BotConfiguration:
             # END send to the user a summary of the options he selected
 
             # START save user preferences in DB
-            user_model = UserModel()
-            user_id = user_model.get_user_id_by_his_chat_id(chat_id)
-
-            uninterested_in_model = UninterestedInModel()
             uninterested_in_model.remove_uninterested_tags_by_user_id(user_id)
 
-            uninterested_website_model = UninterestedWebsiteModel()
             uninterested_website_model.remove_uninterested_websites_by_user_id(user_id)
 
             for website, options in self.user_selections[chat_id].items():
                 for option, selected in options.items():
-                    if not selected:
-                        if option == "uninterested_website":
-                            # the current option is not a tag name
+                    if option == "uninterested_website":
+                        # the current option is not a tag name
+                        if selected:
+                            # user uninterested in the current website
                             uninterested_website_model.insert(user_id, website)
-                        else:
-                            # the current option is a tag name
+                    else:
+                        # the current option is a tag name
+                        if not selected:
+                            # user uninterested in the current tag
+
                             tag_id = TagModel.get_tag_id_by_name_and_website(option, website)
                             uninterested_in_model.insert(user_id, tag_id)
             # END save user preferences in DB
