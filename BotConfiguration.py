@@ -26,7 +26,10 @@ class BotConfiguration:
 
     def __init__(self, token):
         self.token = token
+
         self.user_selections = {}
+        self.show_user_preferences_saved_in_db = {}
+
         self.first_level_options = ["DISIM", "ADSU"]
 
         # START instantiate model classes
@@ -55,6 +58,9 @@ class BotConfiguration:
         chat_id = update.effective_chat.id
 
         self.user_selections[chat_id] = self.get_checkbox_options()
+        self.show_user_preferences_saved_in_db[
+            chat_id] = True  # by default the user should be shown his preferences saved in the DB so that he can be
+        # shown the preferences he selected in the previous time
 
         user_id = self.user_model.get_user_id_by_his_chat_id(chat_id)
         if user_id is None:
@@ -141,7 +147,9 @@ class BotConfiguration:
             website = data.split(":")[1]
 
             # START get user preferences from DB
-            if user_id is not None:
+            if user_id is not None and self.show_user_preferences_saved_in_db[chat_id] is True:  # if the DB does
+                # not have updated user preferences, the user will be shown the updated ones that are present in RAM
+
                 # current user already registered
 
                 # START get user website preferences
@@ -168,8 +176,11 @@ class BotConfiguration:
             _, website, option = data.split(":")
 
             self.user_selections[chat_id][website][option] = not self.user_selections[chat_id][website][
-                option]  # toggle
-            # the flag associated with the selected button
+                option]  # toggle the flag associated with the selected button
+
+            self.show_user_preferences_saved_in_db[chat_id] = False  # a new user preference has been added ==> until it
+            # is also saved in the database, do not show the user preferences stored in DB, as they may not be
+            # up-to-date.
 
             await self.send_second_level_buttons(update, context, chat_id, website)
 
@@ -216,6 +227,10 @@ class BotConfiguration:
 
                             tag_id = self.tag_model.get_tag_id_by_name_and_website(option, website)
                             self.uninterested_in_model.insert(user_id, tag_id)
+
+            self.show_user_preferences_saved_in_db[chat_id] = True  # all user preferences saved in DB are updated ==>
+            # this flag can be toggled
+
             # END save user preferences in DB
 
         elif data == "back":
@@ -225,7 +240,12 @@ class BotConfiguration:
     async def personalizza_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Manage the /personalizza command """
         chat_id = update.effective_chat.id
+
         self.user_selections[chat_id] = self.get_checkbox_options()
+        self.show_user_preferences_saved_in_db[
+            chat_id] = True  # by default the user should be shown his preferences saved in the DB so that he can be
+        # shown the preferences he selected in the previous time
+
         await self.send_first_level_buttons(update, context, chat_id)
 
     def run(self):
