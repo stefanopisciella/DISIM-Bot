@@ -37,3 +37,10 @@ class UninterestedIn(AbstractModel):
             user_uninterested_tags.append(TagDomain(result['name'], result['website']))
 
         return  user_uninterested_tags
+
+    @staticmethod
+    def remove_uninterested_tags_by_user_id(user_id):
+        query = '''DELETE FROM uninterested_in 
+                   WHERE user_id = :user_id; '''
+
+        AbstractModel.execute_query(query, {"user_id": user_id}, True)

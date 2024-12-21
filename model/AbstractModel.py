@@ -46,7 +46,7 @@ class AbstractModel:
             website text NOT NULL CHECK (tag.website <> ''));''',
          '''CREATE TABLE IF NOT EXISTS user (
             ID INTEGER PRIMARY KEY,
-            chat_id text);''',
+            chat_id text UNIQUE);''',
          '''
             CREATE TABLE IF NOT EXISTS uninterested_website (
             ID INTEGER PRIMARY KEY,

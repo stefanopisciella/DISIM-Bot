@@ -26,3 +26,10 @@ class UninterestedWebsite(AbstractModel):
         results = AbstractModel.execute_query(query, {"user_id": user_id}, False)
 
         return AbstractModel.get_array_column_from_two_dimensional_array(results, "website")
+
+    @staticmethod
+    def remove_uninterested_websites_by_user_id(user_id):
+        query = '''DELETE FROM uninterested_website 
+                   WHERE user_id = :user_id; '''
+
+        AbstractModel.execute_query(query, {"user_id": user_id}, True)

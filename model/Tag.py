@@ -44,3 +44,13 @@ class Tag(AbstractModel):
 
         tag_id = AbstractModel.execute_query(query, query_parameters)
         return tag_id[0][0] if tag_id else None
+
+    @staticmethod
+    def get_tag_id_by_name_and_website(name, website):
+        query = '''SELECT ID
+                   FROM tag
+                   WHERE website = :website AND name COLLATE NOCASE = :name; '''
+
+        return AbstractModel.execute_query(query, {"name": name, "website": website})[0][0]
+
+

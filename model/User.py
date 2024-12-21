@@ -16,7 +16,9 @@ class User(AbstractModel):
 
     @staticmethod
     def insert(chat_id):
-        query = '''INSERT INTO user (chat_id) VALUES (:chat_id);'''
+        query = '''INSERT INTO user (chat_id)
+                   VALUES (:chat_id)
+                   ON CONFLICT (chat_id) DO NOTHING;'''
         query_parameters = {"chat_id": chat_id}
 
         return AbstractModel.execute_query(query, query_parameters, True)
@@ -33,3 +35,12 @@ class User(AbstractModel):
             users.append(UserDomain(result['chat_id'], user_uninterested_tags))
 
         return users
+
+    @staticmethod
+    def get_user_id_by_his_chat_id(chat_id):
+        query = '''SELECT ID
+                   FROM user
+                   WHERE chat_id = :chat_id; '''
+
+        user_id = AbstractModel.execute_query(query, query_parameters={"chat_id": chat_id})
+        return user_id[0][0] if user_id else None
