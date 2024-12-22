@@ -38,7 +38,8 @@ class SendFilteredAnnouncements:
                     SendFilteredAnnouncements.send_announcements_to_user(announcement, user)
 
     @staticmethod
-    async def send_announcements_to_user(context: ContextTypes.DEFAULT_TYPE, announcement, user):
+    def send_announcements_to_user(announcement, user):
+        # TODO continue from here
         pass
 
     @staticmethod

@@ -31,8 +31,10 @@ class User(AbstractModel):
 
         users = []
         for result in results:
-            user_uninterested_tags = UninterestedInModel.get_user_uninterested_tags(result["ID"])
-            users.append(UserDomain(result['chat_id'], user_uninterested_tags))
+            user_id = result["ID"]
+
+            user_uninterested_tags = UninterestedInModel.get_user_uninterested_tags(user_id)
+            users.append(UserDomain(user_id, result['chat_id'], user_uninterested_tags))
 
         return users
 
