@@ -1,18 +1,19 @@
 from website_scrapers.DISIMwebsiteScraper import DISIMwebsiteScraper
 from website_scrapers.ADSUwebsiteScraper import ADSUwebsiteScraper
 
-from SendFilteredAnnouncements import SendFilteredAnnouncements
+from bot.BroadcastBot import BroadcastBot
 
 from model.Announcement import Announcement as AnnouncementModel
 
 import configuration_file as conf
 
 import time
+import asyncio
+
 
 SECONDS_IN_ONE_HOUR = 3600
 
-
-if __name__ == '__main__':
+async def run():
     disim = DISIMwebsiteScraper()
     adsu = ADSUwebsiteScraper()
 
@@ -29,8 +30,12 @@ if __name__ == '__main__':
         announcement_model.bulk_insert(announcements_to_be_published)
         # END insert announcements into SQLite DB
 
-        SendFilteredAnnouncements.send_announcements_filtered_by_tags_of_interest_to_user(announcements_to_be_published)
+        await BroadcastBot.send_announcements_filtered_by_tags_of_interest_to_user(announcements_to_be_published)
 
         del announcements_to_be_published  # free up RAM
 
         time.sleep(conf.HOURS_BETWEEN_SCRAPING * SECONDS_IN_ONE_HOUR)
+
+
+if __name__ == '__main__':
+    asyncio.run(run())
