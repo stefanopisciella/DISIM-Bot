@@ -30,7 +30,8 @@ async def run():
         announcement_model.bulk_insert(announcements_to_be_published)
         # END insert announcements into SQLite DB
 
-        await BroadcastBot.send_announcements_filtered_by_tags_of_interest_to_user(announcements_to_be_published)
+        broadcast_bot = BroadcastBot()
+        await broadcast_bot.send_announcements_filtered_by_tags_of_interest_to_user(announcements_to_be_published)
 
         del announcements_to_be_published  # free up RAM
 

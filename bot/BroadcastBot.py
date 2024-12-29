@@ -1,7 +1,9 @@
 import logging
-import asyncio
 from telegram import Bot
 from telegram.error import TelegramError
+
+from model.User import User as UserModel
+from model.UninterestedWebsite import UninterestedWebsite as UninterestedWebsiteModel
 
 import configuration_file as conf
 
@@ -10,11 +12,11 @@ class BroadcastBot:
     # START singleton design pattern
     _instance = None
 
-    def __new__(cls, token):
+    def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
 
-            cls._instance.token = token
+            cls._instance.bot = Bot(token=conf.TELEGRAM_BOT_TOKEN)
 
             # START set logging
             logging.basicConfig(
@@ -25,34 +27,57 @@ class BroadcastBot:
             # END set logging
 
         return cls._instance
+
     # END singleton design pattern
 
+    async def send_announcements_filtered_by_tags_of_interest_to_user(self, announcements):
+        users = UserModel.get_all()
+        uninterested_website_model = UninterestedWebsiteModel()
 
+        for user in users:
+            user_uninterested_websites = uninterested_website_model.get_user_uninterested_websites(user.get_user_id())
 
+            for announcement in announcements:
+                interested = True  # ==> user interested in the current announcement
 
+                # START check if the website of the current announcement is of user interest
+                if announcement.get_website() in user_uninterested_websites:
+                    break
+                # END check if the website of the current announcement is of user interest
 
+                # START check if all tags of the current announcement are of user interest
+                for announcement_tag in announcement.get_announcement_tags():
+                    if not interested:
+                        break
 
-    async def send_message(self, bot, user_id, message_text):
-        try:
-            await bot.send_message(chat_id=user_id, text=message_text)
-            self.logger.info(f"Message sent to user {user_id}")
-        except TelegramError as e:
-            self.logger.error(f"Failed to send message to user {user_id}: {e}")
+                    for user_uninterested_tag in user.get_uninterested_tags():
+                        if announcement_tag.equals(user_uninterested_tag):
+                            # the current announcement contains a tag that is not of interest to the user ==> don't
+                            # send the current announcement to the current user
+                            interested = False  # ==> user disinterested in the current announcement
+                            break
+                # END check if all tags of the current announcement are of user interest
 
+                if interested:
+                    # START send the announcement
+                    try:
+                        await self.bot.send_message(
+                            chat_id=user.get_chat_id(),
+                            text=BroadcastBot.format_message_content(announcement),
+                            parse_mode='HTML'
+                        )
+                    except TelegramError as e:
+                        self.logger.error(f"Failed to send message to user {user.get_chat_id()}: {e}")
+                    # END send the announcement
 
-    async def send_messages(self, user_ids, message_text):
-        bot = Bot(token=self.token)
-        tasks = [self.send_message(bot, user_id, message_text) for user_id in user_ids]
-        await asyncio.gather(*tasks)
+    @staticmethod
+    def format_message_content(announcement):
+        announcement_title = announcement.get_title()
+        announcement_link_to_detail_page = announcement.get_link_to_detail_page()
 
-if __name__ == "__main__":
-    # List of user IDs to send the message to
-    USER_IDS = [53428135]  # Replace with actual user IDs
+        sections = [
+            f'''<a href="{announcement_link_to_detail_page}">{announcement_title}</a>''',  # title and link
+            announcement.get_preview_of_the_announcement_content()  # preview of the announcement
+        ]
 
-    # The message you want to broadcast
-    MESSAGE_TEXT = "Hello4321! This is a broadcast message from your bot."
-
-    send_filtered_announcement = BroadcastBot(conf.TELEGRAM_BOT_TOKEN)
-
-    # Run the async function
-    asyncio.run(send_filtered_announcement.send_messages(user_ids=USER_IDS, message_text=MESSAGE_TEXT))
+        return '\n'.join(sections)
