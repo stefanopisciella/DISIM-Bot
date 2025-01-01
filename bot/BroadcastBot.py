@@ -74,11 +74,15 @@ class BroadcastBot:
     def format_message_content(announcement):
         announcement_title = announcement.get_title()
         announcement_link_to_detail_page = announcement.get_link_to_detail_page()
+        string_of_announcement_tags = announcement.get_string_of_announcement_tags()
+        announcement_website = announcement.get_website()
 
         sections = [
             f'''<a href="{announcement_link_to_detail_page}">{announcement_title}</a>''',  # title and link
-            announcement.get_preview_of_the_announcement_content(),  # preview of the announcement
-            f'''Tags🏷: '''
+            announcement.get_preview_of_the_announcement_content(),
+            '\n',
+            f'''🌐 <i>Sito</i>: {announcement_website}''',
+            f'''🏷 <i>Tags</i>: {string_of_announcement_tags}'''
         ]
 
         return '\n'.join(sections)
