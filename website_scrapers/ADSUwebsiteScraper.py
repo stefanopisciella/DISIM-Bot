@@ -50,7 +50,7 @@ class ADSUwebsiteScraper(WebsiteScraper):
 
             preview_of_the_announcement_content = pq(announcement).find("div.post_excerpt > p").text()
 
-            announcement_to_be_published = Announcement("ADSU", title, link_to_detail_page, publication_date, reformatted_publication_date, announcement_tags, preview_of_the_announcement_content)
+            announcement_to_be_published = Announcement("ADSU", title, link_to_detail_page, publication_date, reformatted_publication_date, announcement_tags, string_of_announcement_tags, preview_of_the_announcement_content)
             announcements_to_be_published.append(announcement_to_be_published)
 
         return announcements_to_be_published

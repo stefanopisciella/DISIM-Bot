@@ -25,15 +25,6 @@ class DISIMwebsiteScraper(WebsiteScraper):
         second_slash = original_url.find('/', first_slash + 1)
         return original_url[:second_slash]
 
-    """
-    @staticmethod
-    def get_announcement_tags(tags):
-        text_of_tags = []
-        for tag in tags:
-            text_of_tags.append(pq(tag).text())
-
-        return text_of_tags
-    """
 
     def get_announcements(self):
         domain = "https://www.disim.univaq.it/"
@@ -66,7 +57,7 @@ class DISIMwebsiteScraper(WebsiteScraper):
 
             preview_of_the_announcement_content = pq(announcement).find("p:nth-child(2)").text()
 
-            announcement_to_be_published = Announcement("DISIM", title, link_to_detail_page, publication_date, reformatted_publication_date, announcement_tags, preview_of_the_announcement_content)
+            announcement_to_be_published = Announcement("DISIM", title, link_to_detail_page, publication_date, reformatted_publication_date, announcement_tags, string_of_announcement_tags, preview_of_the_announcement_content)
             announcements_to_be_published.append(announcement_to_be_published)
 
         return announcements_to_be_published

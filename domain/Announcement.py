@@ -1,12 +1,13 @@
 class Announcement:
 
-    def __init__(self, website, title, link_to_detail_page, publication_date, reformatted_publication_date, announcement_tags, preview_of_the_announcement_content):
+    def __init__(self, website, title, link_to_detail_page, publication_date, reformatted_publication_date, announcement_tags, string_of_announcement_tags, preview_of_the_announcement_content):
         self.website = website
         self.title = title
         self.link_to_detail_page = link_to_detail_page
         self.publication_date = publication_date
         self.reformatted_publication_date = reformatted_publication_date
         self.announcement_tags = announcement_tags
+        self.string_of_announcement_tags = string_of_announcement_tags
         self.preview_of_the_announcement_content = preview_of_the_announcement_content
 
     def get_website(self):
@@ -44,6 +45,12 @@ class Announcement:
 
     def set_announcement_tags(self, announcement_tags):
         self.announcement_tags = announcement_tags
+
+    def get_string_of_announcement_tags(self):
+        return self.string_of_announcement_tags
+
+    def set_string_of_announcement_tags(self, string_of_announcement_tags):
+        self.string_of_announcement_tags = string_of_announcement_tags
 
     def get_preview_of_the_announcement_content(self):
         return self.preview_of_the_announcement_content
