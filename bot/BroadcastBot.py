@@ -77,7 +77,8 @@ class BroadcastBot:
 
         sections = [
             f'''<a href="{announcement_link_to_detail_page}">{announcement_title}</a>''',  # title and link
-            announcement.get_preview_of_the_announcement_content()  # preview of the announcement
+            announcement.get_preview_of_the_announcement_content(),  # preview of the announcement
+            f'''Tags: '''
         ]
 
         return '\n'.join(sections)
