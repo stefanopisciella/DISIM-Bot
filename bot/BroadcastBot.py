@@ -42,7 +42,7 @@ class BroadcastBot:
 
                 # START check if the website of the current announcement is of user interest
                 if announcement.get_website() in user_uninterested_websites:
-                    break
+                    continue  # ==> skip the check of the announcement tags and don't send the current announcement
                 # END check if the website of the current announcement is of user interest
 
                 # START check if all tags of the current announcement are of user interest
