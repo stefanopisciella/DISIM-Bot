@@ -1,7 +1,7 @@
 from website_scrapers.DISIMwebsiteScraper import DISIMwebsiteScraper
 from website_scrapers.ADSUwebsiteScraper import ADSUwebsiteScraper
 
-from bot.BroadcastBot import BroadcastBot
+from BroadcastBot import BroadcastBot
 
 from model.Announcement import Announcement as AnnouncementModel
 
