@@ -20,27 +20,16 @@ class BroadcastBot:
     SECONDS_IN_ONE_HOUR = 3600
     # END constants
 
-    # START singleton design pattern
-    _instance = None
+    def __init__(self):
+        self.bot = Bot(token=conf.TELEGRAM_BOT_TOKEN)
 
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-
-            cls._instance.bot = Bot(token=conf.TELEGRAM_BOT_TOKEN)
-
-            # START set logging
-            logging.basicConfig(
-                format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                level=logging.INFO
-            )
-            cls._instance.logger = logging.getLogger(__name__)
-            # END set logging
-
-        return cls._instance
-
-    # END singleton design pattern
-
+        # START set logging
+        logging.basicConfig(
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            level=logging.INFO
+        )
+        self.logger = logging.getLogger(__name__)
+        # END set logging
 
     async def run(self):
         disim = DISIMwebsiteScraper()
