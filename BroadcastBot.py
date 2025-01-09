@@ -61,29 +61,33 @@ class BroadcastBot:
 
         for user in users:
             user_uninterested_websites = uninterested_website_model.get_user_uninterested_websites(user.get_user_id())
+            user_uninterested_tags = user.get_uninterested_tags()
 
             for announcement in announcements:
-                interested = True  # ==> user interested in the current announcement
-
                 # START check if the website of the current announcement is of user interest
                 if announcement.get_website() in user_uninterested_websites:
                     continue  # ==> skip the check of the announcement tags and don't send the current announcement
                 # END check if the website of the current announcement is of user interest
 
-                # START check if all tags of the current announcement are of user interest
+                # START check the tags of the current announcement
+                interested = False
                 for announcement_tag in announcement.get_announcement_tags():
-                    if not interested:
-                        break
+                    if announcement_tag not in user_uninterested_tags:
+                        # there is at least one announcement tag that is of interest to the current user ==> send this
+                        # announcement to the current user
 
-                    for user_uninterested_tag in user.get_uninterested_tags():
-                        if announcement_tag.equals(user_uninterested_tag):
-                            # the current announcement contains a tag that is not of interest to the user ==> don't
-                            # send the current announcement to the current user
-                            interested = False  # ==> user disinterested in the current announcement
-                            break
-                # END check if all tags of the current announcement are of user interest
+                        # the comparison between the current tag of the announcement and the list of tags not of interest
+                        # to the user is made possible thanks to the definition of the __eq__ function within the Tag
+                        # class
+
+                        interested = True
+                        break
+                # END check the tags of the current announcement
 
                 if interested:
+                    # the website of the current announcement is of interest to the user AND not all announcement tags
+                    # are uninteresting to the user
+
                     # START send the announcement
                     try:
                         await self.bot.send_message(

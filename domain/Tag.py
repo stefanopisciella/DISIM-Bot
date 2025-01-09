@@ -16,7 +16,11 @@ class Tag:
     def set_website(self, website):
         self.website = website
 
-    def equals(self, other_tag):
-        return self.name == other_tag.name and self.website == other_tag.website
+    # this function is used to compare instances of this class
+    def __eq__(self, other_tag):
+        if isinstance(other_tag, Tag):
+            return self.name == other_tag.get_name() and self.website == other_tag.get_website()
+
+        return False
 
 
