@@ -47,6 +47,13 @@ class AbstractModel:
          '''CREATE TABLE IF NOT EXISTS user (
             ID INTEGER PRIMARY KEY,
             chat_id text UNIQUE);''',
+         '''CREATE TABLE IF NOT EXISTS menu_item (
+            ID INTEGER PRIMARY KEY,
+            name text,
+            link text,
+            parent_id INTEGER,
+
+            FOREIGN KEY (parent_id) REFERENCES menu_item(ID));''',
          '''
             CREATE TABLE IF NOT EXISTS uninterested_website (
             ID INTEGER PRIMARY KEY,
