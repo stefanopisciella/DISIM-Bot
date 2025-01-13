@@ -48,7 +48,7 @@ class AbstractModel:
             ID INTEGER PRIMARY KEY,
             chat_id text UNIQUE);''',
          '''CREATE TABLE IF NOT EXISTS menu_item (
-            ID INTEGER PRIMARY KEY,
+            ID INTEGER PRIMARY KEY AUTOINCREMENT,
             name text,
             link text,
             parent_id INTEGER,
