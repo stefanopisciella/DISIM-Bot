@@ -67,6 +67,8 @@ class DISIMwebsiteScraper(WebsiteScraper):
 
 
     def get_menu_items(self):
+        domain = "https://www.disim.univaq.it/"
+
         menu_html = self.get_div_containing_the_menu_from_the_teaching_page()
         menu_html = super().remove_comments_from_html_code(menu_html)
         menu = pq(menu_html)
@@ -91,7 +93,10 @@ class DISIMwebsiteScraper(WebsiteScraper):
             # START save all the link related to the current heading
             for anchor_html in ul.find("a").items():
                 anchor_name = anchor_html.text().strip()
+
                 anchor_href = anchor_html.attr("href")
+                anchor_href = anchor_href if anchor_href.startswith("https://") or anchor_href.startswith("http://") else f'{domain}{anchor_href}'
+
                 anchor = MenuItemDomain(anchor_name, anchor_href, heading_id)
 
                 menu_items.append(anchor)
