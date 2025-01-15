@@ -95,7 +95,8 @@ class DISIMwebsiteScraper(WebsiteScraper):
                 anchor_name = anchor_html.text().strip()
 
                 anchor_href = anchor_html.attr("href")
-                anchor_href = anchor_href if anchor_href.startswith("https://") or anchor_href.startswith("http://") else f'{domain}{anchor_href}'
+                anchor_href = anchor_href if anchor_href.startswith("https://") or anchor_href.startswith("http://") else f'{domain}{anchor_href}'  # prepend
+                # the domain to the href, if necessary
 
                 anchor = MenuItemDomain(anchor_name, anchor_href, heading_id)
 
