@@ -75,28 +75,26 @@ class DISIMwebsiteScraper(WebsiteScraper):
         menu_item_model.remove_all()
 
         menu_items = []
-        for heading in menu("h2").items():  # select all <h2> elements
-            heading_text = heading.text().strip()
+        for heading_html in menu("h2").items():  # select all <h2> elements
+            heading_text = heading_html.text().strip()
 
-            ul = heading.next("ul") or heading.next().next("ul")    # check if the next element or the one after that
+            ul = heading_html.next("ul") or heading_html.next().next("ul")    # check if the next element or the one after that
             # following the current <h2> is a <ul>
 
             if not ul:
                 # neither of the two elements following the <h2> is a <ul>
                 continue    # ==> skip the current <h2> because it hasn't related links
 
-            title = MenuItemDomain(heading_text, None, None)
-            menu_items.append(title)
-
-            title_id = menu_item_model.insert(title)
+            heading = MenuItemDomain(heading_text, None, None)
+            heading_id = menu_item_model.insert(heading)
 
             # START save all the link related to the current heading
-            for anchor in ul.find("a").items():
-                anchor_name = anchor.text().strip()
-                anchor_href = anchor.attr("href")
-                link = MenuItemDomain(anchor_name, anchor_href, title_id)
+            for anchor_html in ul.find("a").items():
+                anchor_name = anchor_html.text().strip()
+                anchor_href = anchor_html.attr("href")
+                anchor = MenuItemDomain(anchor_name, anchor_href, heading_id)
 
-                menu_items.append(link)
+                menu_items.append(anchor)
             # END save all the link related to the current heading
 
         menu_item_model.bulk_insert(menu_items)
