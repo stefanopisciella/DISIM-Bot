@@ -2,6 +2,8 @@ from domain.Announcement import Announcement
 from domain.Tag import Tag
 from domain.MenuItem import MenuItem as MenuItemDomain
 
+from model.MenuItem import MenuItem as MenuItemModel
+
 from website_scrapers.WebsiteScraper import WebsiteScraper
 
 from pyquery import PyQuery as pq
@@ -67,75 +69,41 @@ class DISIMwebsiteScraper(WebsiteScraper):
     def get_menu_items(self):
         menu_html = self.get_div_containing_the_menu_from_the_teaching_page()
         menu_html = super().remove_comments_from_html_code(menu_html)
+        menu = pq(menu_html)
 
-        doc = pq(menu_html)
+        menu_item_model = MenuItemModel()
+        menu_item_model.remove_all()
 
-        # Dictionary to store menu headers and their corresponding links
-        menu_links = {}
-
-        # Select all <h2> elements
-        for heading in doc("h2").items():
-            # Get the text of the current heading
+        menu_items = []
+        for heading in menu("h2").items():  # select all <h2> elements
             heading_text = heading.text().strip()
 
-            # Find the next sibling <ul> with the class `dotted`
-            ul = heading.next("ul") or heading.next().next("ul")
+            ul = heading.next("ul") or heading.next().next("ul")    # check if the next element or the one after that
+            # following the current <h2> is a <ul>
 
-            # Skip if no corresponding `ul.dotted` is found
             if not ul:
-                continue
+                # neither of the two elements following the <h2> is a <ul>
+                continue    # ==> skip the current <h2> because it hasn't related links
 
-            # Extract links from the <ul.dotted>
-            links = [
-                {
-                    "text": link.text().strip(),  # Visible text of the link
-                    "href": link.attr("href")  # Href attribute of the link
-                }
-                for link in ul.find("a").items()
-            ]
+            title = MenuItemDomain(heading_text, None, None)
+            menu_items.append(title)
 
-            # Add to the dictionary
-            menu_links[heading_text] = links
+            title_id = menu_item_model.insert(title)
 
-        # Print results
-        for menu, links in menu_links.items():
-            print(f"Menu: {menu}")
-            for link in links:
-                print(f"  - {link['text']}: {link['href']}")
+            # START save all the link related to the current heading
+            for anchor in ul.find("a").items():
+                anchor_name = anchor.text().strip()
+                anchor_href = anchor.attr("href")
+                link = MenuItemDomain(anchor_name, anchor_href, title_id)
 
+                menu_items.append(link)
+            # END save all the link related to the current heading
 
+        menu_item_model.bulk_insert(menu_items)
 
-
-
-        '''for section in menu_html.find('div'):
-            ul = section.find('h2')
-            if ul.length > 0:
-                # the current section has
-
-
-
-        # START
-        sections = teaching_page('.one-third.column > .title > span')
-
-        menu_items_to_store = []
-        for section in sections:
-            section_name = pq(section).text()
-
-            menu_items_to_store.append(MenuItemDomain(section_name, None, None))
-        # END
-
-        # START
-        links = teaching_page('')
-
-        for link in links:
-            link_name = pq(link).text()
-            link_href = pq(link).attr("href")
-
-            menu_items_to_store.append(MenuItemDomain(link_name, link_href, None))
-        # END'''
 
     def get_div_containing_the_menu_from_the_teaching_page(self):
-        """ the <div< containing the menu must have the following HTML structure:
+        """ the <div> containing the menu must have the following HTML structure:
                 <div class="row">
                     <h2>
                     <ul>
