@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-import requests, json
+import requests, json, re
 
 from pyquery import PyQuery as pq
 
@@ -96,3 +96,11 @@ class WebsiteScraper(ABC): # this is a formal interface
     def write_db_file(db_filename, data):
         with open(db_filename, 'w', encoding='utf-8') as json_file:
             json.dump(data, json_file, indent=4)
+
+    @staticmethod
+    def remove_comments_from_html_code(original_html):
+        pattern = r"<!--[\s\S]*?-->"    # regular expression to match HTML comments
+
+        html_without_comments = re.sub(pattern, "", original_html)
+
+        return html_without_comments
