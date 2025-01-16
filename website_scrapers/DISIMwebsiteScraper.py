@@ -87,7 +87,7 @@ class DISIMwebsiteScraper(WebsiteScraper):
                 # neither of the two elements following the <h2> is a <ul>
                 continue    # ==> skip the current <h2> because it hasn't related links
 
-            heading = MenuItemDomain(heading_text, None, None)
+            heading = MenuItemDomain(None, heading_text, None, None)
             heading_id = menu_item_model.insert(heading)
 
             # START save all the link related to the current heading
@@ -98,7 +98,7 @@ class DISIMwebsiteScraper(WebsiteScraper):
                 anchor_href = anchor_href if anchor_href.startswith("https://") or anchor_href.startswith("http://") else f'{domain}{anchor_href}'  # prepend
                 # the domain to the href, if necessary
 
-                anchor = MenuItemDomain(anchor_name, anchor_href, heading_id)
+                anchor = MenuItemDomain(None, anchor_name, anchor_href, heading_id)
 
                 menu_items.append(anchor)
             # END save all the link related to the current heading

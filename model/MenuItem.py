@@ -29,3 +29,19 @@ class MenuItem(AbstractModel):
         query = '''DELETE FROM menu_item WHERE 1;'''
 
         return AbstractModel.execute_query(query=query, is_a_crud_statement=True)
+
+    @staticmethod
+    def get_all_first_level_menu_items():
+        query = '''SELECT ID, name
+                   FROM menu_item
+                   WHERE parent_id IS NULL;'''
+
+        results = AbstractModel.execute_query(query)
+
+        items = []
+        for result in results:
+            item = MenuItemDomain(result['ID'], result['name'], None, None)
+            items.append(item)
+
+        return items
+

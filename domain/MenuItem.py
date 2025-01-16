@@ -1,8 +1,15 @@
 class MenuItem:
-    def __init__(self, name, link, parent_id):
+    def __init__(self, menu_item_id, name, link, parent_id):
+        self.menu_item_id = menu_item_id
         self.name = name
         self.link = link
         self.parent_id = parent_id
+
+    def get_menu_item_id(self):
+        return self.menu_item_id
+
+    def set_menu_item_id(self, menu_item_id):
+        self.menu_item_id = menu_item_id
 
     def get_name(self):
         return self.name
