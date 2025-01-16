@@ -8,23 +8,11 @@ class PullBot:
     def __init__(self, token):
         self.application = Application.builder().token(token).build()
 
-        # Define menus
-        self.sections = {
-            "Section 1": [
-                {"name": "Link 1-1", "url": "https://example.com/1-1"},
-                {"name": "Link 1-2", "url": "https://example.com/1-2"}
-            ],
-            "Section 2": [
-                {"name": "Link 2-1", "url": "https://example.com/2-1"},
-                {"name": "Link 2-2", "url": "https://example.com/2-2"}
-            ]
-        }
-
         self.menu_item_model = MenuItemModel()
 
         # Handlers
         self.application.add_handler(CommandHandler("start", self.start))
-        self.application.add_handler(CallbackQueryHandler(self.handle_callback))
+        self.application.add_handler(CallbackQueryHandler(self.button_callback))
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await self.send_first_level_menu(update, context)
@@ -36,30 +24,53 @@ class PullBot:
         buttons = []
         for first_level_menu_item in first_level_menu_items:
             first_level_menu_item_name = first_level_menu_item.get_name()
+            first_level_menu_item_id = first_level_menu_item.get_menu_item_id()
 
-            buttons.append([InlineKeyboardButton(first_level_menu_item_name, callback_data=first_level_menu_item_name)])
+            buttons.append([InlineKeyboardButton(first_level_menu_item_name, callback_data=f'{first_level_menu_item_name}:{first_level_menu_item_id}')])
+
+        # await update.message.reply_text("Seleziona una delle seguenti sezione di Didattica", reply_markup=reply_markup)
+        reply_markup = InlineKeyboardMarkup(buttons)
+        if update.callback_query:
+            # user interacted by selecting one of the inline buttons ==> to respond appropriately, the Bot edits the
+            # existing message (to update its content or keyboard) rather than sending a new message.
+            await update.callback_query.edit_message_text(
+                "Seleziona una delle seguenti sezioni di Didattica", reply_markup=reply_markup
+            )
+        else:
+            # here is handled the case in which the user interacts with user by sending it a message ==> the Bot sends
+            # a new message
+            await update.message.reply_text(
+                "Seleziona una delle seguenti sezioni di Didattica", reply_markup=reply_markup
+            )
+
+    async def send_second_level_menu(self, update: Update, context: ContextTypes.DEFAULT_TYPE, selected_first_level_menu_item_id, selected_first_level_menu_item_name):
+        second_level_menu_items = self.menu_item_model.get_menu_items_by_parent_id(selected_first_level_menu_item_id)
+
+        buttons = []
+        for second_level_menu_item in second_level_menu_items:
+            buttons.append([InlineKeyboardButton(second_level_menu_item.get_name(), url=second_level_menu_item.get_link())])
+
+        back_button = [InlineKeyboardButton("<< Indietro", callback_data="back")]
+        buttons.append(back_button)
 
         reply_markup = InlineKeyboardMarkup(buttons)
-        await update.message.reply_text("Didattica DISIM", reply_markup=reply_markup)
+        await update.callback_query.edit_message_text(selected_first_level_menu_item_name, reply_markup=reply_markup)
 
 
-    async def handle_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handle button clicks."""
-        query = update.callback_query
-        await query.answer()
+    async def button_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        query = update.callback_query  # extracts the button click event from the user's interaction
+        await query.answer()  # acknowledges the button click to Telegram
 
-        if query.data in self.sections:  # First level menu clicked
-            section_buttons = [
-                [InlineKeyboardButton(item["name"], url=item["url"])] for item in self.sections[query.data]
-            ]
-            back_button = [InlineKeyboardButton("Back", callback_data="back")]
-            reply_markup = InlineKeyboardMarkup(section_buttons + [back_button])
-            await query.edit_message_text(f"Links in {query.data}:", reply_markup=reply_markup)
+        data = query.data  # retrieves the value associated with the clicked button.
 
-        elif query.data == "back":  # Back button clicked
-            keyboard = [[InlineKeyboardButton(section, callback_data=section)] for section in self.sections.keys()]
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            await query.edit_message_text("Select a section:", reply_markup=reply_markup)
+        if data == "back":
+            await self.send_first_level_menu(update, context)
+        else:
+            selected_first_level_menu_item_name = data.split(":")[0]
+            selected_first_level_menu_item_id = data.split(":")[1]
+
+            await self.send_second_level_menu(update, context, selected_first_level_menu_item_id, selected_first_level_menu_item_name)
+
 
     def run(self):
         """Run the bot."""

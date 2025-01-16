@@ -45,3 +45,18 @@ class MenuItem(AbstractModel):
 
         return items
 
+    @staticmethod
+    def get_menu_items_by_parent_id(parent_id):
+        query = '''SELECT ID, name, link
+                   FROM menu_item
+                   WHERE parent_id IS NOT NULL AND parent_id = :parent_id;'''
+
+        results = AbstractModel.execute_query(query, query_parameters={"parent_id": parent_id})
+
+        menu_items = []
+        for result in results:
+            menu_items.append(MenuItemDomain(result['ID'], result['name'], result['link'], parent_id))
+
+        return menu_items
+
+
