@@ -113,13 +113,8 @@ class UserPreferencesManager:
             chat_id] = True  # by default the user should be shown his preferences saved in the DB so that he can be
         # shown the preferences he selected in the previous time
 
-        user_id = self.user_model.get_user_id_by_his_chat_id(chat_id)
-        if user_id is None:
-            # the user has not yet registered
-
-            await self.send_first_level_buttons(update, context, chat_id)
-
-            self.user_model.insert(chat_id)  # save user chat_id in  DB
+        await self.send_first_level_buttons(update, context, chat_id)
+        self.user_model.insert(chat_id)  # save user chat_id in DB
 
     async def send_first_level_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE, chat_id: int) -> None:
         """Send the first-level buttons """
