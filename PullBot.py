@@ -340,7 +340,7 @@ class MenuManager:
             first_level_menu_item_name = first_level_menu_item.get_name()
             first_level_menu_item_id = first_level_menu_item.get_menu_item_id()
 
-            buttons.append([InlineKeyboardButton(first_level_menu_item_name, callback_data=f'{first_level_menu_item_name}:{first_level_menu_item_id}')])
+            buttons.append([InlineKeyboardButton(first_level_menu_item_name, callback_data=f'MenuManager:{first_level_menu_item_name}:{first_level_menu_item_id}')])
 
         reply_markup = InlineKeyboardMarkup(buttons)
         if update.callback_query:
@@ -363,7 +363,7 @@ class MenuManager:
         for second_level_menu_item in second_level_menu_items:
             buttons.append([InlineKeyboardButton(second_level_menu_item.get_name(), url=second_level_menu_item.get_link())])
 
-        back_button = [InlineKeyboardButton("<< Indietro", callback_data="back")]
+        back_button = [InlineKeyboardButton("<< Indietro", callback_data="MenuManager:back")]
         buttons.append(back_button)
 
         reply_markup = InlineKeyboardMarkup(buttons)
@@ -375,11 +375,11 @@ class MenuManager:
 
         data = query.data  # retrieves the value associated with the clicked button.
 
-        if data == "back":
+        if data == "MenuManager:back":
             await self.send_first_level_menu(update, context)
         else:
-            selected_first_level_menu_item_name = data.split(":")[0]
-            selected_first_level_menu_item_id = data.split(":")[1]
+            selected_first_level_menu_item_name = data.split(":")[1]
+            selected_first_level_menu_item_id = data.split(":")[2]
 
             await self.send_second_level_menu(update, context, selected_first_level_menu_item_id, selected_first_level_menu_item_name)
 
