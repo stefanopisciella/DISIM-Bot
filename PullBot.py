@@ -24,6 +24,8 @@ class PullBot:
 
         # START bot handlers
         self.application.add_handler(CommandHandler("start", self.start))
+        self.application.add_handler(CommandHandler("personalizza", self.user_preferences_manager.personalizza_command_handler))
+        self.application.add_handler(CommandHandler("menu", self.menu_manager.menu_command_handler))
 
         self.application.add_handler(CallbackQueryHandler(self.menu_manager.button_callback, pattern="^MenuManager:"))  # CallbackQueryHandler of MenuManager
         self.application.add_handler(CallbackQueryHandler(self.user_preferences_manager.button_callback, pattern="^UserPreferencesManager:"))  # CallbackQueryHandler of UserPreferencesManager
@@ -293,7 +295,7 @@ class UserPreferencesManager:
             # user has selected the "turn back" button
             await self.send_first_level_buttons(update, context, chat_id)
 
-    async def personalizza_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def personalizza_command_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Manage the /personalizza command """
         chat_id = update.effective_chat.id
 
@@ -303,17 +305,6 @@ class UserPreferencesManager:
         # shown the preferences he selected in the previous time
 
         await self.send_first_level_buttons(update, context, chat_id)
-
-    def run(self):
-        """Start the bot."""
-        application = ApplicationBuilder().token(self.token).build()
-
-        application.add_handler(CommandHandler("start", self.start))
-        application.add_handler(CommandHandler("personalizza", self.personalizza_command))
-        application.add_handler(CallbackQueryHandler(self.button_callback))
-
-        application.run_polling()
-
 
 
 class MenuManager:
@@ -382,6 +373,9 @@ class MenuManager:
             selected_first_level_menu_item_id = data.split(":")[2]
 
             await self.send_second_level_menu(update, context, selected_first_level_menu_item_id, selected_first_level_menu_item_name)
+
+    async def menu_command_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        pass
 
     @staticmethod
     async def scrape_menu_items():
