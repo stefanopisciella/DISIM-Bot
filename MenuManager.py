@@ -7,7 +7,7 @@ from model.MenuItem import MenuItem as MenuItemModel
 
 from website_scrapers.DISIMwebsiteScraper import DISIMwebsiteScraper
 
-class PullBot:
+class MenuManager:
     def __init__(self, token):
         self.application = Application.builder().token(token).build()
 
@@ -92,5 +92,5 @@ class PullBot:
 
 if __name__ == "__main__":
     TOKEN = "7300897795:AAEaYIJRhV0YpitB8ZTkhinn7F0SB5GxTDw"
-    bot = PullBot(TOKEN)
+    bot = MenuManager(TOKEN)
     asyncio.run(bot.run())

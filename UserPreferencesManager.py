@@ -11,7 +11,7 @@ from model.UninterestedWebsite import UninterestedWebsite as UninterestedWebsite
 import configuration_file as conf
 
 
-class ConversationalBot:
+class UserPreferencesManager:
     # START constant strings
     RECIVE_COMUNICATIONS_FROM_THE_SITE = "Ricevi comunicazioni dal sito"
     NOT_RECIVE_COMUNICATIONS_FROM_THE_SITE = "Non ricevere comunicazioni dal sito"
@@ -260,5 +260,5 @@ class ConversationalBot:
 
 
 if __name__ == "__main__":
-    bot = ConversationalBot(conf.TELEGRAM_BOT_TOKEN)
+    bot = UserPreferencesManager(conf.TELEGRAM_BOT_TOKEN)
     bot.run()
