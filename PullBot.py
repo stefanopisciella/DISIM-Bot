@@ -131,10 +131,10 @@ class UserPreferencesManager:
             chat_id] = True  # by default the user should be shown his preferences saved in the DB so that he can be
         # shown the preferences he selected in the previous time
 
-        await self.send_first_level_buttons(update, context, chat_id)
+        await self.send_first_level_buttons(update, context)
         self.user_model.insert(chat_id)  # save user chat_id in DB
 
-    async def send_first_level_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE, chat_id: int) -> None:
+    async def send_first_level_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Send the first-level buttons """
         buttons = []
 
@@ -300,7 +300,7 @@ class UserPreferencesManager:
 
         elif data == "UserPreferencesManager:back":
             # user has selected the "turn back" button
-            await self.send_first_level_buttons(update, context, chat_id)
+            await self.send_first_level_buttons(update, context)
 
     async def personalizza_command_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Manage the /personalizza command """
@@ -311,7 +311,7 @@ class UserPreferencesManager:
             chat_id] = True  # by default the user should be shown his preferences saved in the DB so that he can be
         # shown the preferences he selected in the previous time
 
-        await self.send_first_level_buttons(update, context, chat_id)
+        await self.send_first_level_buttons(update, context)
 
 
 class MenuManager:
