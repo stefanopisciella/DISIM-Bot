@@ -74,8 +74,15 @@ class UserPreferencesManager:
     # START emoticons
     NOTIFICATIONS_ICON = "🔔"
     NO_NOTIFICATIONS_ICON = "🔕"
-
     # END emoticons
+
+    # START singleton design pattern
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
     def __init__(self):
         self.user_selections = {}
@@ -89,6 +96,8 @@ class UserPreferencesManager:
         self.uninterested_website_model = UninterestedWebsiteModel()
         self.uninterested_in_model = UninterestedInModel()
         # END instantiate model classes
+    # END singleton design pattern
+
 
     def get_checkbox_options(self):
         second_level_options = {}
@@ -308,12 +317,17 @@ class UserPreferencesManager:
 
 
 class MenuManager:
+    # START singleton design pattern
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
     def __init__(self):
         self.menu_item_model = MenuItemModel()
-
-        # CHECK
-        """self.application.add_handler(CommandHandler("start", self.start))
-        self.application.add_handler(CallbackQueryHandler(self.button_callback))"""
+    # END singleton design pattern
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await self.send_first_level_menu(update, context)
