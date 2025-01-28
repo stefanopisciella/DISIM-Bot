@@ -1,7 +1,7 @@
 import asyncio
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, Application, CallbackQueryHandler, CommandHandler, ContextTypes
+from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes
 
 from model.MenuItem import MenuItem as MenuItemModel
 
@@ -58,12 +58,19 @@ class PullBot:
             await self.user_preferences_manager.start(update, context)
 
 
-    def run(self):
+    async def run(self):
+        """print("Bot is running...")
+        self.application.run_polling()"""
+
+        # CHECK
+
         """Run the bot."""
         print("Bot is running...")
-        self.application.run_polling()
+        await self.application.initialize()
+        await self.application.start()
+        await self.application.updater.start_polling()
 
-
+        await self.menu_manager.scrape_menu_items()
 
 
 class UserPreferencesManager:
@@ -387,16 +394,7 @@ class MenuManager:
 
             await asyncio.sleep(86400)  # sleep for 24 hours
 
-    async def run(self):
-        """Run the bot."""
-        print("Bot is running...")
-        await self.application.initialize()
-        await self.application.start()
-        await self.application.updater.start_polling()
-
-        await self.scrape_menu_items()
-
 
 if __name__ == "__main__":
     bot = PullBot(conf.TELEGRAM_BOT_TOKEN)
-    bot.run()
+    asyncio.run(bot.run())
