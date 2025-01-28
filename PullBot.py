@@ -59,11 +59,6 @@ class PullBot:
 
 
     async def run(self):
-        """print("Bot is running...")
-        self.application.run_polling()"""
-
-        # CHECK
-
         """Run the bot."""
         print("Bot is running...")
         await self.application.initialize()
