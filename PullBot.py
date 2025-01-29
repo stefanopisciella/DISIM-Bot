@@ -43,7 +43,18 @@ class PullBot:
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        await update.message.reply_text("Benvenuto in DISIM Bot:", reply_markup=reply_markup)  # send a message
+        if update.callback_query:
+            # user interacted by selecting one of the inline buttons ==> to respond appropriately, the Bot edits the
+            # existing message (to update its content or keyboard) rather than sending a new message.
+            await update.callback_query.edit_message_text(
+                "Benvenuto in DISIM Bot:", reply_markup=reply_markup
+            )
+        else:
+            # here is handled the case in which the user interacts with user by sending it a message ==> the Bot sends
+            # a new message
+            await update.message.reply_text(
+                "Benvenuto in DISIM Bot:", reply_markup=reply_markup
+            )
 
 
     async def button_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -56,7 +67,8 @@ class PullBot:
             await self.menu_manager.start(update, context)
         elif data == "UserPreferencesManager":
             await self.user_preferences_manager.start(update, context)
-
+        elif data == "back":
+            await self.start(update, context)
 
     async def run(self):
         """Run the bot."""
@@ -139,6 +151,7 @@ class UserPreferencesManager:
 
         buttons.append([InlineKeyboardButton("Salva 💾", callback_data="UserPreferencesManager:save_all")])  # create "save" button to save
         # all user preferences
+        buttons.append([InlineKeyboardButton("<< Indietro", callback_data="back")])  # add "turn back" button
 
         reply_markup = InlineKeyboardMarkup(buttons)
         # END create first-level buttons
@@ -334,6 +347,8 @@ class MenuManager:
             first_level_menu_item_id = first_level_menu_item.get_menu_item_id()
 
             buttons.append([InlineKeyboardButton(first_level_menu_item_name, callback_data=f'MenuManager:{first_level_menu_item_name}:{first_level_menu_item_id}')])
+
+        buttons.append([InlineKeyboardButton("<< Indietro", callback_data="back")])  # add "turn back" button
 
         reply_markup = InlineKeyboardMarkup(buttons)
         if update.callback_query:
