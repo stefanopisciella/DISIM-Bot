@@ -25,7 +25,7 @@ class PullBot:
         # START bot handlers
         self.application.add_handler(CommandHandler("start", self.start))
         self.application.add_handler(CommandHandler("personalizza", self.user_preferences_manager.personalizza_command_handler))
-        self.application.add_handler(CommandHandler("menu", self.menu_manager.menu_command_handler))
+        self.application.add_handler(CommandHandler("link", self.menu_manager.link_command_handler))
 
         self.application.add_handler(CallbackQueryHandler(self.menu_manager.button_callback, pattern="^MenuManager:"))  # CallbackQueryHandler of MenuManager
         self.application.add_handler(CallbackQueryHandler(self.user_preferences_manager.button_callback, pattern="^UserPreferencesManager:"))  # CallbackQueryHandler of UserPreferencesManager
@@ -37,8 +37,8 @@ class PullBot:
     async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard = [
             [
-                InlineKeyboardButton("Menu", callback_data="MenuManager"),
-                InlineKeyboardButton("Personalizza", callback_data="UserPreferencesManager")
+                InlineKeyboardButton("🔗 Link utili", callback_data="MenuManager"),
+                InlineKeyboardButton("🏷 I tuoi tag", callback_data="UserPreferencesManager")
             ]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -376,8 +376,8 @@ class MenuManager:
 
             await self.send_second_level_menu(update, context, selected_first_level_menu_item_id, selected_first_level_menu_item_name)
 
-    async def menu_command_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        pass
+    async def link_command_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        await self.send_first_level_menu(update, context)
 
     @staticmethod
     async def scrape_menu_items():
