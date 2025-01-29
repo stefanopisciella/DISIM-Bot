@@ -277,8 +277,14 @@ class UserPreferencesManager:
                     summary_arr.append(f"{website}: {', '.join(tags_of_interest) or 'nessun tag selezionato'}")
                     # START add user tags of interest to the summary
 
-            await query.edit_message_text(
-                f"Riepilogo delle tue selezioni:\n\u2022 " + "\n\u2022 ".join(summary_arr)
+            keyboard = [
+                [
+                    InlineKeyboardButton("<< Indietro", callback_data="UserPreferencesManager:back")  # turn back button
+                ]
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            await update.callback_query.edit_message_text(
+                f"Riepilogo delle tue selezioni:\n\u2022 " + "\n\u2022 ".join(summary_arr), reply_markup=reply_markup
             )
             # END send to the user a summary of the options he selected
 
