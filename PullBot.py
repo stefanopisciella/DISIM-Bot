@@ -16,6 +16,11 @@ import configuration_file as conf
 
 
 class PullBot:
+    # START constant strings
+    WELCOME_MSG = '''<b>Benvenuto su DISIM Bot!</b>\nDa oggi riceverai tutte le comunicazioni pubblicate sui siti del <b>DISIM</b> e dell'<b>ADSU</b>, e potrai accedere rapidamente ai link utili del Dipartimento.\nInoltre, puoi personalizzare le notifiche selezionando i tag di tuo interesse, così da ricevere solo le comunicazioni più rilevanti per te. 🔔'''
+    # END constant strings
+
+
     def __init__(self, token):
         self.application = Application.builder().token(token).build()
 
@@ -33,8 +38,7 @@ class PullBot:
         # END bot handlers
 
 
-    @staticmethod
-    async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard = [
             [
                 InlineKeyboardButton("🔗 Link utili", callback_data="MenuManager"),
@@ -46,12 +50,14 @@ class PullBot:
         if update.callback_query:
             # user interacted by selecting one of the inline buttons ==> to respond appropriately, the Bot edits the
             # existing message (to update its content or keyboard) rather than sending a new message.
+            # await update.callback_query.message.reply_text("Messaggio senza pulsanti.")
             await update.callback_query.edit_message_text(
                 "Benvenuto in DISIM Bot:", reply_markup=reply_markup
             )
         else:
             # here is handled the case in which the user interacts with user by sending it a message ==> the Bot sends
             # a new message
+            await update.message.reply_text(self.WELCOME_MSG, parse_mode="HTML")
             await update.message.reply_text(
                 "Benvenuto in DISIM Bot:", reply_markup=reply_markup
             )
