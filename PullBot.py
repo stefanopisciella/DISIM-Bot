@@ -18,6 +18,7 @@ import configuration_file as conf
 class PullBot:
     # START constant strings
     WELCOME_MSG = '''<b>Benvenuto su DISIM Bot!</b>\nDa oggi riceverai tutte le comunicazioni pubblicate sui siti del <b>DISIM</b> e dell'<b>ADSU</b>, e potrai accedere rapidamente ai link utili del Dipartimento.\nInoltre, puoi personalizzare le notifiche selezionando i tag di tuo interesse, così da ricevere solo le comunicazioni più rilevanti per te. 🔔'''
+    MENU = '''Seleziona una delle seguenti voci di menu:'''
     # END constant strings
 
 
@@ -41,8 +42,8 @@ class PullBot:
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard = [
             [
-                InlineKeyboardButton("🔗 Link utili", callback_data="MenuManager"),
-                InlineKeyboardButton("🏷 I tuoi tag", callback_data="UserPreferencesManager")
+                InlineKeyboardButton("🔗 DISIM: Link utili", callback_data="MenuManager"),
+                InlineKeyboardButton("🏷 Gestisci i tuoi tag", callback_data="UserPreferencesManager")
             ]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -52,14 +53,14 @@ class PullBot:
             # existing message (to update its content or keyboard) rather than sending a new message.
             # await update.callback_query.message.reply_text("Messaggio senza pulsanti.")
             await update.callback_query.edit_message_text(
-                "Benvenuto in DISIM Bot:", reply_markup=reply_markup
+                self.MENU, reply_markup=reply_markup
             )
         else:
             # here is handled the case in which the user interacts with user by sending it a message ==> the Bot sends
             # a new message
             await update.message.reply_text(self.WELCOME_MSG, parse_mode="HTML")
             await update.message.reply_text(
-                "Benvenuto in DISIM Bot:", reply_markup=reply_markup
+                self.MENU, reply_markup=reply_markup
             )
 
 
@@ -90,7 +91,7 @@ class UserPreferencesManager:
     # START constant strings
     RECIVE_COMUNICATIONS_FROM_THE_SITE = "Ricevi comunicazioni dal sito"
     NOT_RECIVE_COMUNICATIONS_FROM_THE_SITE = "Non ricevere comunicazioni dal sito"
-    SELECT_THE_WEBSITE = "Seleziona il sito per gestire i tuoi tag di interesse:"
+    SELECT_THE_WEBSITE = "Gestisci i tag di interesse per il sito selezionato:"
     # END constant strings
 
     # START emoticons
@@ -155,7 +156,7 @@ class UserPreferencesManager:
         for website in self.first_level_options:  # create a button for each website
             buttons.append([InlineKeyboardButton(website, callback_data=f"UserPreferencesManager:first:{website}")])
 
-        buttons.append([InlineKeyboardButton("Salva 💾", callback_data="UserPreferencesManager:save_all")])  # create "save" button to save
+        buttons.append([InlineKeyboardButton("💾 Salva le modifiche", callback_data="UserPreferencesManager:save_all")])  # create "save" button to save
         # all user preferences
         buttons.append([InlineKeyboardButton("<< Indietro", callback_data="back")])  # add "turn back" button
 
@@ -208,7 +209,7 @@ class UserPreferencesManager:
 
         reply_markup = InlineKeyboardMarkup(buttons)
         await update.callback_query.edit_message_text(
-            f"Seleziona i tuoi tag di interesse per il sito {website}:", reply_markup=reply_markup
+            f"Seleziona i tuoi tag di interesse per il sito <b>{website}</b>:", reply_markup=reply_markup, parse_mode="HTML"
         )
 
     async def button_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -270,7 +271,7 @@ class UserPreferencesManager:
                 if self.user_selections[chat_id][website]["uninterested_website"]:
                     # user uninterested in the current website
                     summary_arr.append(
-                        f"{self.NOT_RECIVE_COMUNICATIONS_FROM_THE_SITE} {website} {self.NO_NOTIFICATIONS_ICON}")
+                        f"{self.NOT_RECIVE_COMUNICATIONS_FROM_THE_SITE} <b>{website}</b> {self.NO_NOTIFICATIONS_ICON}")
                 else:
                     # user interested in the current website
 
@@ -280,7 +281,7 @@ class UserPreferencesManager:
                         if option != "uninterested_website" and selected:
                             tags_of_interest.append(option)
 
-                    summary_arr.append(f"{website}: {', '.join(tags_of_interest) or 'nessun tag selezionato'}")
+                    summary_arr.append(f"<b>{website}</b>: {', '.join(tags_of_interest) or 'nessun tag selezionato'}")
                     # START add user tags of interest to the summary
 
             keyboard = [
@@ -290,7 +291,7 @@ class UserPreferencesManager:
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
             await update.callback_query.edit_message_text(
-                f"Riepilogo delle tue selezioni:\n\u2022 " + "\n\u2022 ".join(summary_arr), reply_markup=reply_markup
+                f"Riepilogo delle tue preferenze:\n\u2022 " + "\n\u2022 ".join(summary_arr), reply_markup=reply_markup, parse_mode="HTML"
             )
             # END send to the user a summary of the options he selected
 
@@ -347,6 +348,9 @@ class MenuManager:
         self.menu_item_model = MenuItemModel()
     # END singleton design pattern
 
+    # START constant strings
+    FIRST_LEVEL_MENU = "Seleziona una delle seguenti sezioni:"
+
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await self.send_first_level_menu(update, context)
 
@@ -367,13 +371,13 @@ class MenuManager:
             # user interacted by selecting one of the inline buttons ==> to respond appropriately, the Bot edits the
             # existing message (to update its content or keyboard) rather than sending a new message.
             await update.callback_query.edit_message_text(
-                "Seleziona una delle seguenti sezioni di Didattica", reply_markup=reply_markup
+                self.FIRST_LEVEL_MENU, reply_markup=reply_markup
             )
         else:
             # here is handled the case in which the user interacts with user by sending it a message ==> the Bot sends
             # a new message
             await update.message.reply_text(
-                "Seleziona una delle seguenti sezioni di Didattica", reply_markup=reply_markup
+                self.FIRST_LEVEL_MENU, reply_markup=reply_markup
             )
 
     async def send_second_level_menu(self, update: Update, context: ContextTypes.DEFAULT_TYPE, selected_first_level_menu_item_id, selected_first_level_menu_item_name):
@@ -387,7 +391,7 @@ class MenuManager:
         buttons.append(back_button)
 
         reply_markup = InlineKeyboardMarkup(buttons)
-        await update.callback_query.edit_message_text(selected_first_level_menu_item_name, reply_markup=reply_markup)
+        await update.callback_query.edit_message_text(f'Link della sezione <b>{selected_first_level_menu_item_name}</b>:', reply_markup=reply_markup, parse_mode="HTML")
 
     async def button_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         query = update.callback_query  # extracts the button click event from the user's interaction
