@@ -15,7 +15,7 @@ from model.UninterestedWebsite import UninterestedWebsite as UninterestedWebsite
 import configuration_file as conf
 
 
-class BroadcastBot:
+class PushBot:
     # START constants
     SECONDS_IN_ONE_HOUR = 3600
     # END constants
@@ -48,8 +48,8 @@ class BroadcastBot:
             announcement_model.bulk_insert(announcements_to_be_published)
             # END insert announcements into SQLite DB
 
-            broadcast_bot = BroadcastBot()
-            await broadcast_bot.send_announcements_filtered_by_tags_of_interest_to_user(announcements_to_be_published)
+            push_bot = PushBot()
+            await push_bot.send_announcements_filtered_by_tags_of_interest_to_user(announcements_to_be_published)
 
             del announcements_to_be_published  # free up RAM
 
@@ -92,7 +92,7 @@ class BroadcastBot:
                     try:
                         await self.bot.send_message(
                             chat_id=user.get_chat_id(),
-                            text=BroadcastBot.format_message_content(announcement),
+                            text=PushBot.format_message_content(announcement),
                             parse_mode='HTML'
                         )
                     except TelegramError as e:
@@ -118,7 +118,7 @@ class BroadcastBot:
 
 
 if __name__ == '__main__':
-    bot = BroadcastBot()
+    bot = PushBot()
     asyncio.run(bot.run())
 
 
